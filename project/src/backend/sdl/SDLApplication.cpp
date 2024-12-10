@@ -121,7 +121,7 @@ namespace lime {
 		return (counter / frequency) * 1000.0f;
 
 	}
-	void busyWait(float ms){
+	void busyWait(double ms){
 		const double start = getTime();
 		while(getTime() - start < ms){
 			continue;
@@ -142,22 +142,13 @@ namespace lime {
 			case SDL_USEREVENT:
 
 				if (!inBackground) {
-
-					currentUpdate = SDL_GetTicks ();
+					double skibidiDelta = currentUpdate - lastUpdate;
 					applicationEvent.type = UPDATE;
-					applicationEvent.deltaTime = currentUpdate - lastUpdate;
+					applicationEvent.deltaTime = (int)skibidiDelta;
 					lastUpdate = currentUpdate;
-					nextUpdate += framePeriod;
-
-					if(framePeriod != 0){
-						if(applicationEvent.deltaTime < framePeriod){
-							busyWait(framePeriod - applicationEvent.deltaTime);
-						}
-					}
 
 					ApplicationEvent::Dispatch (&applicationEvent);
 					RenderEvent::Dispatch (&renderEvent);
-
 				}
 
 				break;
@@ -342,8 +333,8 @@ namespace lime {
 	void SDLApplication::Init () {
 
 		active = true;
-		lastUpdate = SDL_GetTicks ();
-		nextUpdate = lastUpdate;
+		lastUpdate = getTime();
+		nextUpdate = lastUpdate + framePeriod;
 
 	}
 
@@ -864,6 +855,7 @@ namespace lime {
 
 	bool SDLApplication::Update () {
 
+		currentUpdate = getTime();
 		SDL_Event event;
 		event.type = -1;
 		while (SDL_PollEvent (&event)) {
@@ -871,22 +863,13 @@ namespace lime {
 				event.type = -1;
 				if (!active)
 					return active;
-
 		}
-
-		currentUpdate = SDL_GetTicks ();
 
 		if (currentUpdate >= nextUpdate) {
-
-			if (timerActive) SDL_RemoveTimer (timerID);
-			OnTimer (0, 0);
-
-		} else if (!timerActive) {
-
-			timerActive = true;
-			timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
-
+			nextUpdate = currentUpdate + framePeriod;
+			OnTimer(0, 0);
 		}
+
 		return active;
 
 	}
