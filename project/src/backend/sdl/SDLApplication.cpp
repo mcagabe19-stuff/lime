@@ -142,9 +142,8 @@ namespace lime {
 			case SDL_USEREVENT:
 
 				if (!inBackground) {
-					double skibidiDelta = currentUpdate - lastUpdate;
 					applicationEvent.type = UPDATE;
-					applicationEvent.deltaTime = (int)skibidiDelta;
+					applicationEvent.deltaTime = (int)(currentUpdate - lastUpdate);
 					lastUpdate = currentUpdate;
 
 					ApplicationEvent::Dispatch (&applicationEvent);
@@ -331,11 +330,8 @@ namespace lime {
 
 
 	void SDLApplication::Init () {
-
 		active = true;
 		lastUpdate = getTime();
-		nextUpdate = lastUpdate + framePeriod;
-
 	}
 
 
@@ -794,7 +790,6 @@ namespace lime {
 
 
 	int SDLApplication::Quit () {
-
 		applicationEvent.type = EXIT;
 		ApplicationEvent::Dispatch (&applicationEvent);
 
@@ -827,13 +822,7 @@ namespace lime {
 
 	}
 
-
-	static SDL_TimerID timerID = 0;
-	bool timerActive = false;
-	bool firstTime = true;
-
-	Uint32 OnTimer (Uint32 interval, void *) {
-
+	void PushUpdate(void) {
 		SDL_Event event;
 		SDL_UserEvent userevent;
 		userevent.type = SDL_USEREVENT;
@@ -843,18 +832,11 @@ namespace lime {
 		event.type = SDL_USEREVENT;
 		event.user = userevent;
 
-		timerActive = false;
-		timerID = 0;
-
 		SDL_PushEvent (&event);
-
-		return 0;
-
 	}
 
 
 	bool SDLApplication::Update () {
-
 		currentUpdate = getTime();
 		SDL_Event event;
 		event.type = -1;
@@ -867,11 +849,10 @@ namespace lime {
 
 		if (currentUpdate >= nextUpdate) {
 			nextUpdate = currentUpdate + framePeriod;
-			OnTimer(0, 0);
+			PushUpdate();
 		}
 
 		return active;
-
 	}
 
 
