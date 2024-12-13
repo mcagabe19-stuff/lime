@@ -2,7 +2,8 @@
 
 	<files id="native-toolkit-mbedtls">
 
-		<compilerflag value="-std=c11" />
+		<compilerflag value="-std=c11" unless="android" />
+		<compilerflag value="-std=gnu11" if="android" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/aes.c" />
