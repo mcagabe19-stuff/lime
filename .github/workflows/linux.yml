@@ -1,0 +1,118 @@
+name: Linux CI
+on: workflow_dispatch
+
+env:
+  HAXE_VERSION: 4.3.6
+
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib libgl1-mesa-dev libglu1-mesa-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+      - name: Set HAXEPATH
+        run: echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git hxcpp https://github.com/mcagabe19-stuff/hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+      - name: Enable HXCPP compile cache
+        run: echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+      - name: Configure Lime
+        run: haxelib dev lime ${{ github.workspace }}
+      - name: Rebuild Lime
+        run: |
+          haxelib run lime rebuild linux -32 -release -nocolor -nocffi -eval
+          haxelib run lime rebuild linux -64 -release -nocolor -nocffi -eval
+      - name: Upload Artifact (x86)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Linux-NDLL
+          path: |
+            ndll/Linux/
+            !**/.gitignore
+          if-no-files-found: error
+      - name: Upload Artifact (x86_64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Linux64-NDLL
+          path: |
+            ndll/Linux64/
+            !**/.gitignore
+          if-no-files-found: error
+  linuxarm:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libdrm-dev libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm2_2.4.101-2_armhf.deb
+          sudo dpkg-deb -x libdrm2_2.4.101-2_armhf.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm-dev_2.4.101-2_armhf.deb
+          sudo dpkg-deb -x libdrm-dev_2.4.101-2_armhf.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl1_1.3.1-1_armhf.deb
+          sudo dpkg-deb -x libegl1_1.3.1-1_armhf.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl-dev_1.3.1-1_armhf.deb
+          sudo dpkg-deb -x libegl-dev_1.3.1-1_armhf.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles2_1.3.1-1_armhf.deb
+          sudo dpkg-deb -x libgles2_1.3.1-1_armhf.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles-dev_1.3.1-1_armhf.deb
+          sudo dpkg-deb -x libgles-dev_1.3.1-1_armhf.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm2_2.4.101-2_arm64.deb
+          sudo dpkg-deb -x libdrm2_2.4.101-2_arm64.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm-dev_2.4.101-2_arm64.deb
+          sudo dpkg-deb -x libdrm-dev_2.4.101-2_arm64.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl1_1.3.1-1_arm64.deb
+          sudo dpkg-deb -x libegl1_1.3.1-1_arm64.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl-dev_1.3.1-1_arm64.deb
+          sudo dpkg-deb -x libegl-dev_1.3.1-1_arm64.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles2_1.3.1-1_arm64.deb
+          sudo dpkg-deb -x libgles2_1.3.1-1_arm64.deb /
+          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles-dev_1.3.1-1_arm64.deb
+          sudo dpkg-deb -x libgles-dev_1.3.1-1_arm64.deb /
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+      - name: Set HAXEPATH
+        run: echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git hxcpp https://github.com/mcagabe19-stuff/hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+      - name: Enable HXCPP compile cache
+        run: echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+      - name: Configure Lime
+        run: haxelib dev lime ${{ github.workspace }}
+      - name: Rebuild Lime
+        run: |
+          CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ HXCPP_STRIP=arm-linux-gnueabihf-strip setarch linux32 haxelib run lime rebuild linux -armv7 -release -nocolor -nocffi -eval -D HXCPP_ARMV7
+          CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ HXCPP_STRIP=aarch64-linux-gnu-strip haxelib run lime rebuild linux -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
+      - name: Upload Artifact (armhf)
+        uses: actions/upload-artifact@v3
+        with:
+          name: LinuxArm-NDLL
+          path: |
+            ndll/LinuxArm/
+            !**/.gitignore
+      - name: Upload Artifact (arm64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: LinuxArm64-NDLL
+          path: |
+            ndll/LinuxArm64/
+            !**/.gitignore
+          if-no-files-found: error

@@ -1,0 +1,60 @@
+name: Windows CI
+on: workflow_dispatch
+
+env:
+  HAXE_VERSION: 4.3.6
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup MSVC Arm64
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: amd64_arm64
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+      - name: Set HAXEPATH
+        run: echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git hxcpp https://github.com/mcagabe19-stuff/hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+      - name: Enable HXCPP compile cache
+        run: echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+      - name: Configure Lime
+        run: haxelib dev lime ${{ github.workspace }}
+      - name: Rebuild Lime
+        run: |
+          haxelib run lime rebuild windows -32 -release -nocolor -nocffi -eval
+          haxelib run lime rebuild windows -64 -release -nocolor -nocffi -eval
+          haxelib run lime rebuild windows -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
+      - name: Upload Artifact (x86)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows-NDLL
+          path: |
+            ndll/Windows/
+            !**/.gitignore
+          if-no-files-found: error
+      - name: Upload Artifact (x86_64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows64-NDLL
+          path: |
+            ndll/Windows64/
+            !**/.gitignore
+          if-no-files-found: error
+      - name: Upload Artifact (arm64)
+        uses: actions/upload-artifact@v3
+        with:
+          name: WindowsArm64-NDLL
+          path: |
+            ndll/WindowsArm64/
+            !**/.gitignore
+          if-no-files-found: error
