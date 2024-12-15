@@ -72,8 +72,8 @@ android {
 		release {
 			::if (ANDROID_MINIFY)::
 			// minifyEnabled true
-			shrinkResources true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+			// shrinkResources true
+			// proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 			::end::
 			minifyEnabled false
 			signingConfig signingConfigs.release
