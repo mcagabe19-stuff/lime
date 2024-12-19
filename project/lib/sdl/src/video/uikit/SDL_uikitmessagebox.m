@@ -1,26 +1,6 @@
-/*
-  Simple DirectMedia Layer
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
-
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
-
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
-*/
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_DRIVER_UIKIT
+#ifdef SDL_VIDEO_DRIVER_UIKIT
 
 #include "SDL.h"
 #include "SDL_uikitvideo.h"
@@ -30,171 +10,23 @@
 
 static SDL_bool s_showingMessageBox = SDL_FALSE;
 
-SDL_bool
-UIKit_ShowingMessageBox(void)
+SDL_bool UIKit_ShowingMessageBox(void)
 {
     return s_showingMessageBox;
 }
 
-static void
-UIKit_WaitUntilMessageBoxClosed(const SDL_MessageBoxData *messageboxdata, int *clickedindex)
+static void UIKit_ShowMessageBoxImpl(const char *title, const char *message)
 {
-    *clickedindex = messageboxdata->numbuttons;
-
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-
-    @autoreleasepool {
-        s_showingMessageBox = SDL_TRUE;
-
-        while (*clickedindex == messageboxdata->numbuttons) {
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-            if (dispatch_semaphore_wait(sema, DISPATCH_TIME_NOW) == 0) {
-                break;
-            }
-        }
-
-        s_showingMessageBox = SDL_FALSE;
-    }
+    NSLog(@"Message Box");
+    NSLog(@"Title: %@", @(title));
+    NSLog(@"Message: %@", @(message));
+    NSLog(@"Message Box End");
 }
 
-static BOOL
-UIKit_ShowMessageBoxAlertController(const SDL_MessageBoxData *messageboxdata, int *buttonid)
+int UIKit_ShowMessageBox(const char *title, const char *message)
 {
-    int __block clickedindex = messageboxdata->numbuttons;
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@(messageboxdata->title)
-                                                                   message:@(messageboxdata->message)
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-
-    for (int i = 0; i < messageboxdata->numbuttons; i++) {
-        const SDL_MessageBoxButtonData *sdlButton = &messageboxdata->buttons[i];
-        UIAlertActionStyle style = (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT)
-                                   ? UIAlertActionStyleCancel
-                                   : UIAlertActionStyleDefault;
-
-        UIAlertAction *action = [UIAlertAction actionWithTitle:@(sdlButton->text)
-                                                         style:style
-                                                       handler:^(UIAlertAction *alertAction) {
-                                                           clickedindex = i;
-                                                           dispatch_semaphore_signal(sema);
-                                                       }];
-        [alert addAction:action];
-    }
-
-    UIWindow *window = UIApplication.sharedApplication.windows.firstObject;
-    if (!window.rootViewController) {
-        return NO; // Cannot present alert without a valid rootViewController
-    }
-
-    [window.rootViewController presentViewController:alert animated:YES completion:nil];
-
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    *buttonid = (clickedindex < messageboxdata->numbuttons)
-                ? messageboxdata->buttons[clickedindex].buttonid
-                : -1;
-
-    return YES;
-}
-
-/* UIAlertView is deprecated in iOS 8+ in favor of UIAlertController. */
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
-@interface SDLAlertViewDelegate : NSObject <UIAlertViewDelegate>
-
-@property (nonatomic, assign) int *clickedIndex;
-
-@end
-
-@implementation SDLAlertViewDelegate
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    if (_clickedIndex != NULL) {
-        *_clickedIndex = (int) buttonIndex;
-    }
-}
-
-@end
-#endif /* __IPHONE_OS_VERSION_MIN_REQUIRED < 80000 */
-
-static BOOL
-UIKit_ShowMessageBoxAlertView(const SDL_MessageBoxData *messageboxdata, int *buttonid)
-{
-    /* UIAlertView is deprecated in iOS 8+ in favor of UIAlertController. */
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
-    int i;
-    int clickedindex = messageboxdata->numbuttons;
-    UIAlertView *alert = [[UIAlertView alloc] init];
-    SDLAlertViewDelegate *delegate = [[SDLAlertViewDelegate alloc] init];
-
-    alert.delegate = delegate;
-    alert.title = @(messageboxdata->title);
-    alert.message = @(messageboxdata->message);
-
-    for (i = 0; i < messageboxdata->numbuttons; i++) {
-        const SDL_MessageBoxButtonData *sdlButton;
-        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
-            sdlButton = &messageboxdata->buttons[messageboxdata->numbuttons - 1 - i];
-        } else {
-            sdlButton = &messageboxdata->buttons[i];
-        }
-        [alert addButtonWithTitle:@(sdlButton->text)];
-    }
-
-    delegate.clickedIndex = &clickedindex;
-
-    [alert show];
-
-    UIKit_WaitUntilMessageBoxClosed(messageboxdata, &clickedindex);
-
-    alert.delegate = nil;
-
-    if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
-        clickedindex = messageboxdata->numbuttons - 1 - clickedindex;
-    }
-    *buttonid = messageboxdata->buttons[clickedindex].buttonid;
-    return YES;
-#else
-    return NO;
-#endif /* __IPHONE_OS_VERSION_MIN_REQUIRED < 80000 */
-}
-
-static void
-UIKit_ShowMessageBoxImpl(const SDL_MessageBoxData *messageboxdata, int *buttonid, int *returnValue)
-{
-    BOOL success = NO;
-
-    @autoreleasepool {
-        success = UIKit_ShowMessageBoxAlertController(messageboxdata, buttonid);
-        if (!success) {
-            success = UIKit_ShowMessageBoxAlertView(messageboxdata, buttonid);
-        }
-    }
-
-    if (!success) {
-        *returnValue = SDL_SetError("Could not show message box.");
-    } else {
-        *returnValue = 0;
-    }
-}
-
-int
-UIKit_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
-{
-    @autoreleasepool {
-        __block int returnValue = 0;
-
-        if ([NSThread isMainThread]) {
-            UIKit_ShowMessageBoxImpl(messageboxdata, buttonid, &returnValue);
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                UIKit_ShowMessageBoxImpl(messageboxdata, buttonid, &returnValue);
-            });
-        }
-        return returnValue;
-    }
+    UIKit_ShowMessageBoxImpl(title, message);
+    return 0;
 }
 
 #endif /* SDL_VIDEO_DRIVER_UIKIT */
-
-/* vi: set ts=4 sw=4 expandtab: */
