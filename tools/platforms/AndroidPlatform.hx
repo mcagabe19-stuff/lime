@@ -159,7 +159,7 @@ class AndroidPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("ONLY_X86_64"))
 			architectures = [Architecture.X64];
 		else if (project.targetFlags.exists("ONLY_ARMV5") || project.targetFlags.exists("ONLY_ARMV6"))
-                        architectures = [Architecture.ARMV5];
+			architectures = [Architecture.ARMV5];
 
 		if (architectures.length == 0)
 		{
@@ -405,10 +405,10 @@ class AndroidPlatform extends PlatformTarget
 			armv5 = arm64 = armv7 = x86 = false;
 		}
 		else if (project.targetFlags.exists("ONLY_ARMV5") || project.targetFlags.exists("ONLY_ARMV6"))
-                {
-                        armv5 = true;
-                        arm64 = armv7 = x86 = x64 = false;
-                }
+		{
+			armv5 = true;
+			arm64 = armv7 = x86 = x64 = false;
+		}
 
 		if (armv5) commands.push(["-Dandroid", "-DPLATFORM=android-21"]);
 		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", "-DPLATFORM=android-21"]);
@@ -501,7 +501,7 @@ class AndroidPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString("android.install-location", "auto");
-		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 24);
+		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 35);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString("android.permission", [
