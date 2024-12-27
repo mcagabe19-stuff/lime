@@ -1,5 +1,7 @@
 name: Windows CI
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  workflow_call:
 
 env:
   HAXE_VERSION: 4.3.6
@@ -37,7 +39,7 @@ jobs:
       - name: Upload Artifact (x86)
         uses: actions/upload-artifact@v3
         with:
-          name: Windows-NDLL
+          name: Windows
           path: |
             ndll/Windows/
             !**/.gitignore
@@ -45,7 +47,7 @@ jobs:
       - name: Upload Artifact (x86_64)
         uses: actions/upload-artifact@v3
         with:
-          name: Windows64-NDLL
+          name: Windows64
           path: |
             ndll/Windows64/
             !**/.gitignore
@@ -53,7 +55,7 @@ jobs:
       - name: Upload Artifact (arm64)
         uses: actions/upload-artifact@v3
         with:
-          name: WindowsArm64-NDLL
+          name: WindowsArm64
           path: |
             ndll/WindowsArm64/
             !**/.gitignore

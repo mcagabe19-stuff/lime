@@ -1,5 +1,7 @@
 name: iOS CI
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  workflow_call:
 
 env:
   HAXE_VERSION: 4.3.6
@@ -31,7 +33,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: iPhone-NDLL
+          name: iPhone
           path: |
             ndll/iPhone/
             !**/.gitignore

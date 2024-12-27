@@ -1,5 +1,7 @@
 name: Linux CI
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  workflow_call:
 
 env:
   HAXE_VERSION: 4.3.6
@@ -36,7 +38,7 @@ jobs:
       - name: Upload Artifact (x86)
         uses: actions/upload-artifact@v3
         with:
-          name: Linux-NDLL
+          name: Linux
           path: |
             ndll/Linux/
             !**/.gitignore
@@ -44,7 +46,7 @@ jobs:
       - name: Upload Artifact (x86_64)
         uses: actions/upload-artifact@v3
         with:
-          name: Linux64-NDLL
+          name: Linux64
           path: |
             ndll/Linux64/
             !**/.gitignore
@@ -104,14 +106,14 @@ jobs:
       - name: Upload Artifact (armhf)
         uses: actions/upload-artifact@v3
         with:
-          name: LinuxArm-NDLL
+          name: LinuxArm
           path: |
             ndll/LinuxArm/
             !**/.gitignore
       - name: Upload Artifact (arm64)
         uses: actions/upload-artifact@v3
         with:
-          name: LinuxArm64-NDLL
+          name: LinuxArm64
           path: |
             ndll/LinuxArm64/
             !**/.gitignore
