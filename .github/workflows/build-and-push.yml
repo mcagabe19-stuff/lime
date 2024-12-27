@@ -2,19 +2,19 @@ name: Build and Push
 on: workflow_dispatch
 
 jobs:
-  # android:
-    # uses: ./.github/workflows/android.yml
-  # ios:
-    # uses: ./.github/workflows/ios.yml
-  # linux:
-    # uses: ./.github/workflows/linux.yml
-  # mac:
-    # uses: ./.github/workflows/mac.yml
-  # windows:
-    # uses: ./.github/workflows/windows.yml
+  android:
+    uses: ./.github/workflows/android.yml
+  ios:
+    uses: ./.github/workflows/ios.yml
+  linux:
+    uses: ./.github/workflows/linux.yml
+  mac:
+    uses: ./.github/workflows/mac.yml
+  windows:
+    uses: ./.github/workflows/windows.yml
 
   publisher:
-    # needs: [android, ios, linux, mac, windows]
+    needs: [android, ios, linux, mac, windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,10 +26,10 @@ jobs:
       - name: Delete old NDLL's
         run: rm -rf ndll
 
-      # - name: Download all artifacts
-        # uses: actions/download-artifact@v4
-        # with:
-          # path: ${{ github.workspace }}/ndll
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}/ndll
 
       - name: Push to GitHub
         uses: stefanzweifel/git-auto-commit-action@v5.0.1
