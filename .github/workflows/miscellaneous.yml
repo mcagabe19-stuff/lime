@@ -1,0 +1,49 @@
+name: Miscellaneous CI
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  HAXE_VERSION: 4.3.6
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+      - name: Set HAXEPATH
+        run: echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git hxcpp https://github.com/mcagabe19-stuff/hxcpp --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install openfl --quiet
+          haxelib install svg --quiet
+      - name: Enable HXCPP compile cache
+        run: echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+      - name: Configure Lime
+        run: haxelib dev lime ${{ github.workspace }}
+      - name: Rebuild Miscellaneous
+        run: |
+          cd tools
+          haxe svg.hxml
+          haxe run.hxml
+          haxe tools.hxml
+          haxe alias.hxml
+          cp obj/lime/AliasScript.exe ../templates/bin/lime.exe
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Miscellaneous
+          path: |
+            tools/tools.n
+            run.n
+            svg.n
+            templates/bin/lime.exe
+          if-no-files-found: error
