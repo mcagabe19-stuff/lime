@@ -28,77 +28,11 @@ jobs:
       - name: Delete old NDLL's
         run: rm -rf ndll
 
-      - name: Download Android artifact
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Android
-          path: ./ndll/Android
-
-      - name: Download Linux artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Linux
-          path: ./ndll/Linux
-
-      - name: Download Linux64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Linux64
-          path: ./ndll/Linux64
-
-      - name: Download LinuxArm artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: LinuxArm
-          path: ./ndll/LinuxArm
-
-      - name: Download LinuxArm64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: LinuxArm64
-          path: ./ndll/LinuxArm64
-
-      - name: Download Mac64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Mac64
-          path: ./ndll/Mac64
-
-      - name: Download MacArm64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: MacArm64
-          path: ./ndll/MacArm64
-
-      - name: Download Miscellaneous artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Miscellaneous
           path: .
-
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Windows
-          path: ./ndll/Windows
-
-      - name: Download Windows64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Windows64
-          path: ./ndll/Windows64
-
-      - name: Download WindowsArm64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: WindowsArm64
-          path: ./ndll/WindowsArm64
-
-      - name: Download iPhone artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: iPhone
-          path: ./ndll/iPhone
+          merge-multiple: true
 
       - name: Push to GitHub
         uses: stefanzweifel/git-auto-commit-action@v5.0.1
