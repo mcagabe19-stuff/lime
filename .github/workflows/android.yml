@@ -48,4 +48,5 @@ jobs:
           path: |
             ndll/Android/
             !**/.gitignore
+            lime.png
           if-no-files-found: error

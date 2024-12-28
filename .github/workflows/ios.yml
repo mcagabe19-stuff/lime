@@ -37,4 +37,5 @@ jobs:
           path: |
             ndll/iPhone/
             !**/.gitignore
+            lime.png
           if-no-files-found: error
