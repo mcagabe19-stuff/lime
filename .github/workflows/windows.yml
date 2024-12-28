@@ -11,9 +11,9 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup MSVC Arm64
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: amd64_arm64
       - name: Setup Haxe
@@ -37,7 +37,7 @@ jobs:
           haxelib run lime rebuild windows -64 -release -nocolor -nocffi -eval
           haxelib run lime rebuild windows -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
       - name: Upload Artifact (x86)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Windows
           path: |
@@ -45,7 +45,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
       - name: Upload Artifact (x86_64)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Windows64
           path: |
@@ -53,7 +53,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
       - name: Upload Artifact (arm64)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: WindowsArm64
           path: |

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -36,7 +36,7 @@ jobs:
           haxelib run lime rebuild linux -32 -release -nocolor -nocffi -eval
           haxelib run lime rebuild linux -64 -release -nocolor -nocffi -eval
       - name: Upload Artifact (x86)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Linux
           path: |
@@ -44,7 +44,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
       - name: Upload Artifact (x86_64)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Linux64
           path: |
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -104,14 +104,14 @@ jobs:
           CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ HXCPP_STRIP=arm-linux-gnueabihf-strip setarch linux32 haxelib run lime rebuild linux -armv7 -release -nocolor -nocffi -eval -D HXCPP_ARMV7
           CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ HXCPP_STRIP=aarch64-linux-gnu-strip haxelib run lime rebuild linux -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
       - name: Upload Artifact (armhf)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: LinuxArm
           path: |
             ndll/LinuxArm/
             !**/.gitignore
       - name: Upload Artifact (arm64)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: LinuxArm64
           path: |

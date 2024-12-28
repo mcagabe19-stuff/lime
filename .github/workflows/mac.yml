@@ -11,7 +11,7 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
@@ -32,7 +32,7 @@ jobs:
           # haxelib run lime rebuild mac -32 -release -nocolor -nocffi -eval
           haxelib run lime rebuild mac -64 -release -nocolor -nocffi -eval
       # - name: Upload Artifact (x86)
-        # uses: actions/upload-artifact@v3
+        # uses: actions/upload-artifact@v4
         # with:
           # name: Mac
           # path: |
@@ -40,7 +40,7 @@ jobs:
             # !**/.gitignore
           # if-no-files-found: error
       - name: Upload Artifact (x86_64)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Mac64
           path: |
@@ -51,7 +51,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
@@ -70,7 +70,7 @@ jobs:
       - name: Rebuild Lime
         run: haxelib run lime rebuild mac -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MacArm64
           path: |
