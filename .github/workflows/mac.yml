@@ -34,7 +34,7 @@ jobs:
       # - name: Upload Artifact (x86)
         # uses: actions/upload-artifact@v4
         # with:
-          # name: Mac
+          # name: Mac-NDLL
           # path: |
             # ndll/Mac/
             # !**/.gitignore
@@ -43,7 +43,7 @@ jobs:
       - name: Upload Artifact (x86_64)
         uses: actions/upload-artifact@v4
         with:
-          name: Mac64
+          name: Mac64-NDLL
           path: |
             ndll/Mac64/
             !**/.gitignore
@@ -74,7 +74,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MacArm64
+          name: MacArm64-NDLL
           path: |
             ndll/MacArm64/
             !**/.gitignore

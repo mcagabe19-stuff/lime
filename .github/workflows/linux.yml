@@ -38,7 +38,7 @@ jobs:
       - name: Upload Artifact (x86)
         uses: actions/upload-artifact@v4
         with:
-          name: Linux
+          name: Linux-NDLL
           path: |
             ndll/Linux/
             !**/.gitignore
@@ -47,7 +47,7 @@ jobs:
       - name: Upload Artifact (x86_64)
         uses: actions/upload-artifact@v4
         with:
-          name: Linux64
+          name: Linux64-NDLL
           path: |
             ndll/Linux64/
             !**/.gitignore
@@ -108,7 +108,7 @@ jobs:
       - name: Upload Artifact (armhf)
         uses: actions/upload-artifact@v4
         with:
-          name: LinuxArm
+          name: LinuxArm-NDLL
           path: |
             ndll/LinuxArm/
             !**/.gitignore
@@ -116,7 +116,7 @@ jobs:
       - name: Upload Artifact (arm64)
         uses: actions/upload-artifact@v4
         with:
-          name: LinuxArm64
+          name: LinuxArm64-NDLL
           path: |
             ndll/LinuxArm64/
             !**/.gitignore
