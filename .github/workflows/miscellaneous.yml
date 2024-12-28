@@ -38,7 +38,7 @@ jobs:
           haxe alias.hxml
           cp obj/lime/AliasScript.exe ../templates/bin/lime.exe
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Miscellaneous
           path: |
