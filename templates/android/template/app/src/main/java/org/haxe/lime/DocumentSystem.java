@@ -134,7 +134,6 @@ public class DocumentSystem extends Extension
 				documentFiles.remove(path);
 				return null;
 			}
-			return document.exists() ? document : null;
 		}
 		else if(altCheck)
 		{
