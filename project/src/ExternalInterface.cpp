@@ -2307,11 +2307,7 @@ namespace lime {
 		#ifdef ANDROID
 		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
 		Bytes data (bytes);
-		const QuickVec<unsigned char> _data = documentSystem->readBytes (hxs_utf8(path, nullptr));
-		if (_data == NULL) {
-			return alloc_null ();
-		}
-		data.Set (_data);
+		data.Set (documentSystem->readBytes (hxs_utf8(path, nullptr)));
 		return data.Value (bytes);
 		#else
 		return alloc_null ();

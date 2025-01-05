@@ -46,7 +46,7 @@ namespace lime
                 env->ExceptionClear();
             }
             env->DeleteLocalRef(jPath);
-            return NULL;
+            return QuickVec<unsigned char>();
         }
 
         jboolean copy;
