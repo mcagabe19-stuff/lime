@@ -53,6 +53,7 @@ public class FileDialog extends Extension
 	public static final String LOG_TAG = "FileDialog";
 	private static final int OPEN_REQUEST_CODE = 990;
 	private static final int SAVE_REQUEST_CODE = 995;
+	private static final int DOCUMENT_TREE_REQUEST_CODE = 999;
 
 	public HaxeObject haxeObject;
 	public FileSaveCallback onFileSave = null;
@@ -166,6 +167,32 @@ public class FileDialog extends Extension
 		mainActivity.startActivityForResult(intent, SAVE_REQUEST_CODE);
 	}
 
+	public void openDocumentTree(String defaultPath)
+    {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+
+		if (defaultPath != null)
+		{
+			Log.d(LOG_TAG, "setting document tree dialog inital path...");
+			File file = new File(defaultPath);
+			if (file.exists())
+			{
+				Uri uri = Uri.fromFile(file);
+				intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+				Log.d(LOG_TAG, "Set to " + uri.getPath() + "!");
+			}
+			else
+			{
+				Log.d(LOG_TAG, "Uh Oh the path doesn't exist :(");
+			}
+		}
+
+		Log.d(LOG_TAG, "launching directory picker (ACTION_OPEN_DOCUMENT_TREE) intent!");
+
+		awaitingResults = true;
+        mainActivity.startActivityForResult(intent, DOCUMENT_TREE_REQUEST_CODE);
+    }
 
 	@Override
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data)
@@ -197,6 +224,9 @@ public class FileDialog extends Extension
 							onFileSave.execute(data.getData());
 							onFileSave = null;
 						}
+						break;
+					case DOCUMENT_TREE_REQUEST_CODE:
+						Log.d(LOG_TAG, "Got directory tree uri " + uri.toString());
 						break;
 					default:
 						break;

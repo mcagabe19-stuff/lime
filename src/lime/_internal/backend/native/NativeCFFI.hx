@@ -1420,6 +1420,12 @@ class NativeCFFI
 	@:cffi private static function lime_jni_set_member(jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 
 	@:cffi private static function lime_jni_set_static(jniField:Dynamic, value:Dynamic):Void;
+
+	@:cffi private static function lime_documentsystem_create(treeUri:String):Dynamic;
+
+	@:cffi private static function lime_documentsystem_write_bytes(handle:Dynamic, path:String, bytes:Bytes):Void;
+
+	@:cffi private static function lime_documentsystem_read_bytes(handle:String, path:String, bytes:Bytes):Dynamic;
 	#else
 	private static var lime_jni_call_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_jni_call_member", "oooo", false));
@@ -1438,6 +1444,12 @@ class NativeCFFI
 	private static var lime_jni_set_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_jni_set_member", "ooov", false));
 	private static var lime_jni_set_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_jni_set_static", "oov",
+		false));
+	private static var lime_documentsystem_create = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_documentsystem_create", "so",
+		false));
+	private static var lime_documentsystem_write_bytes = new cpp.Callable<cpp.Object->String->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_documentsystem_write_bytes", "osov",
+		false));
+	private static var lime_documentsystem_read_bytes = new cpp.Callable<cpp.Object->String->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_documentsystem_read_bytes", "osoo",
 		false));
 	#end
 	#end
@@ -1461,6 +1473,12 @@ class NativeCFFI
 	@:cffi private static function lime_jni_set_member(jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 
 	@:cffi private static function lime_jni_set_static(jniField:Dynamic, value:Dynamic):Void;
+
+	@:cffi private static function lime_documentsystem_create(treeUri:String):Dynamic;
+
+	@:cffi private static function lime_documentsystem_write_bytes(handle:Dynamic, path:String, bytes:Bytes):Void;
+
+	@:cffi private static function lime_documentsystem_read_bytes(handle:String, path:String, bytes:Bytes):Dynamic;
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_openal)
