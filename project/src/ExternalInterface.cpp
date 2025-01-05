@@ -25,6 +25,7 @@
 #include <system/Endian.h>
 #include <system/FileWatcher.h>
 #include <system/JNI.h>
+#include <system/DocumentSystem.h>
 #include <system/Locale.h>
 #include <system/SensorEvent.h>
 #include <system/System.h>
@@ -2267,6 +2268,59 @@ namespace lime {
 	}
 
 
+	void gc_documentsystem (value handle) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		delete documentSystem;
+		#endif
+
+	}
+
+
+	value lime_documentsystem_create (HxString treeUri) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = new DocumentSystem (hxs_utf8 (treeUri, nullptr));
+		return CFFIPointer (documentSystem, gc_documentsystem);
+		#else
+		return NULL;
+		#endif
+
+
+	}
+
+
+	void lime_documentsystem_write_bytes(value handle, HxString path, value bytes) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		Bytes data (bytes);
+		documentSystem->writeBytes (hxs_utf8(path, nullptr), &data);
+		#endif
+
+	}
+
+
+	value lime_documentsystem_read_bytes(value handle, HxString path, value bytes) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		Bytes data (bytes);
+		const QuickVec<unsigned char> _data = documentSystem->readBytes (hxs_utf8(path, nullptr));
+		if (_data == NULL) {
+			return alloc_null ();
+		}
+		data.Set (_data);
+		return data.Value (bytes);
+		#else
+		return alloc_null ();
+		#endif
+
+	}
+
+
+
 	void lime_joystick_event_manager_register (value callback, value eventObject) {
 
 		JoystickEvent::callback = new ValuePointer (callback);
@@ -4001,6 +4055,9 @@ namespace lime {
 	DEFINE_PRIME2 (lime_image_load_bytes);
 	DEFINE_PRIME2 (lime_image_load_file);
 	DEFINE_PRIME0 (lime_jni_getenv);
+	DEFINE_PRIME1 (lime_documentsystem_create);
+	DEFINE_PRIME3v (lime_documentsystem_write_bytes);
+	DEFINE_PRIME3 (lime_documentsystem_read_bytes);
 	DEFINE_PRIME2v (lime_joystick_event_manager_register);
 	DEFINE_PRIME1 (lime_joystick_get_device_guid);
 	DEFINE_PRIME1 (lime_joystick_get_device_name);
