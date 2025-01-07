@@ -171,7 +171,7 @@ public class FileDialog extends Extension
     {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-
+	
 		if (defaultPath != null)
 		{
 			Log.d(LOG_TAG, "setting document tree dialog inital path...");
@@ -187,9 +187,7 @@ public class FileDialog extends Extension
 				Log.d(LOG_TAG, "Uh Oh the path doesn't exist :(");
 			}
 		}
-
 		Log.d(LOG_TAG, "launching directory picker (ACTION_OPEN_DOCUMENT_TREE) intent!");
-
 		awaitingResults = true;
         mainActivity.startActivityForResult(intent, DOCUMENT_TREE_REQUEST_CODE);
     }
@@ -226,7 +224,7 @@ public class FileDialog extends Extension
 						}
 						break;
 					case DOCUMENT_TREE_REQUEST_CODE:
-						Log.d(LOG_TAG, "Got directory tree uri " + uri.toString());
+						Log.d(LOG_TAG, "Got directory tree uri: " + uri.toString());
 						break;
 					default:
 						break;
