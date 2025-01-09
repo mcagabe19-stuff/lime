@@ -52,6 +52,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import java.util.Hashtable;
@@ -1428,13 +1429,19 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         });
 
         // create text
-
+        ScrollView scrollView = new ScrollView(this);
         TextView message = new TextView(this);
         message.setGravity(Gravity.CENTER);
         message.setText(args.getString("message"));
         if (textColor != Color.TRANSPARENT) {
             message.setTextColor(textColor);
         }
+
+        // Add TextView to ScrollView
+        scrollView.addView(message);
+        LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
+        scrollView.setLayoutParams(scrollParams);
 
         // create buttons
 
@@ -1493,7 +1500,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.addView(message);
+        content.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        content.addView(scrollView);
         content.addView(buttons);
         if (backgroundColor != Color.TRANSPARENT) {
             content.setBackgroundColor(backgroundColor);
