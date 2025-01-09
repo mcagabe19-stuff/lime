@@ -3,6 +3,7 @@ package org.haxe.lime;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 ::if (ANDROID_USE_ANDROIDX)::
 import androidx.core.content.FileProvider;
@@ -20,6 +21,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.Manifest;
 import org.haxe.extension.Extension;
 import android.view.WindowManager;
 import org.libsdl.app.SDLActivity;
@@ -142,7 +144,13 @@ public class GameActivity extends SDLActivity {
 		}
 
 		assetManager = getAssets ();
-		vibrator = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
+
+		if (checkSelfPermission(Manifest.permission.VIBRATE) == PackageManager.PERMISSION_GRANTED) {
+
+			vibrator = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
+
+		}
+
 		handler = new Handler ();
 
 		Extension.assetManager = assetManager;
