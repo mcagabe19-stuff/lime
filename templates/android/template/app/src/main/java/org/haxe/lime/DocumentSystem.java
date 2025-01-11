@@ -29,6 +29,7 @@ public class DocumentSystem extends Extension
 		rootDocument = DocumentFile.fromTreeUri(mainContext, rootUri);
 		cacheDocument(rootDocument, "");
 
+		// This doesn't seem to work... 
 		mainContext.getContentResolver().registerContentObserver(rootUri, true, new ContentObserver(Handler.createAsync(Looper.getMainLooper())) {
 			@Override
 			public void onChange(boolean selfChange, Uri uri)
@@ -73,6 +74,59 @@ public class DocumentSystem extends Extension
             fos.write(data);
         }
     }
+
+	public void createDirectory(String path) {
+        DocumentFile current = rootDocument;
+        String[] parts = path.split("/");
+
+        for (int i = 0; i < parts.length - 1; i++)
+		{
+            DocumentFile next = current.findFile(parts[i]);
+            if (next == null)
+			{
+                next = current.createDirectory(parts[i]);
+            }
+            current = next;
+        }
+    }
+
+	public String[] readDirectory(String path)
+	{
+		DocumentFile dir = getDocument(path, true);
+
+		if (dir != null && dir.isDirectory())
+			return formatTreeList(dir.listFiles());
+
+		return new String[0];
+	}
+
+	public boolean exists(String path)
+	{
+		DocumentFile file = getDocument(path, true);
+
+		return (file != null && file.exists());
+	}
+
+	public boolean deleteDirectory(String path)
+	{
+		DocumentFile dir = getDocument(path, true);
+
+		return (dir != null && dir.isDirectory() && dir.delete());
+	}
+
+	public boolean deleteFile(String path)
+	{
+		DocumentFile file = getDocument(path, true);
+
+		return (file != null && file.isFile() && file.delete());
+	}
+
+	public boolean isDirectory(String path)
+	{
+		DocumentFile document = getDocument(path, true);
+
+		return (document != null && document.isDirectory());
+	}
 
 	public void reset(String uriStr)
 	{
@@ -143,9 +197,13 @@ public class DocumentSystem extends Extension
 				curDocument = curDocument.findFile(segment);
 			}
 
-			if (curDocument != null && !curDocument.isFile())
+			if (curDocument != null)
 			{
-				documentFiles.put(path, curDocument);
+				if (curDocument.isFile())
+				{
+					documentFiles.put(path, curDocument);
+				}
+
 				return curDocument;
 			}
 			else
@@ -158,5 +216,17 @@ public class DocumentSystem extends Extension
 		{
 			return null;
 		}
+	}
+
+	private static String[] formatTreeList(DocumentFile[] files)
+	{
+		List<String> fileList = new ArrayList<>();
+
+		for (DocumentFile file : files)
+		{
+			fileList.add(file.getName());
+		}
+
+		return fileList.toArray(new String[0]);
 	}
 }

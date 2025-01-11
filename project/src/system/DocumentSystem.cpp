@@ -83,4 +83,95 @@ namespace lime
         env->DeleteLocalRef(jData);
     }
 
+    void DocumentSystem::createDirectory(const char *path)
+    {
+        JNIEnv *env = (JNIEnv *)JNI::GetEnv();
+        jmethodID mid = env->GetMethodID(env->GetObjectClass(this->javaObject), "createDirectory", "(Ljava/lang/String;)V");
+        jstring jPath = env->NewStringUTF(path);
+
+        env->CallVoidMethod(this->javaObject, mid, jPath);
+
+        env->DeleteLocalRef(jPath);
+    }
+
+    value DocumentSystem::readDirectory(const char *path)
+    {
+        JNIEnv *env = (JNIEnv *)JNI::GetEnv();
+        jmethodID mid = env->GetMethodID(env->GetObjectClass(this->javaObject), "readDirectory", "(Ljava/lang/String;)[Ljava/lang/String;");
+        jstring jPath = env->NewStringUTF(path);
+
+        jobjectArray jArray = (jobjectArray)env->CallObjectMethod(this->javaObject, mid, jPath);
+        int length = env->GetArrayLength(jArray);
+
+        value result = alloc_array(length);
+
+        for (int i = 0; i < length; i++)
+        {
+            jboolean is_copy;
+            jstring jStr = (jstring)env->GetObjectArrayElement(jArray, i);
+            const char *cStr = env->GetStringUTFChars(jStr, &is_copy);
+
+            val_array_set_i(result, i, alloc_string(cStr));
+
+            env->ReleaseStringUTFChars(jStr, cStr);
+            env->DeleteLocalRef(jStr);
+        }
+
+        env->DeleteLocalRef(jPath);
+
+        return result;
+    }
+
+    bool DocumentSystem::exists(const char *path)
+    {
+        JNIEnv *env = (JNIEnv *)JNI::GetEnv();
+        jmethodID mid = env->GetMethodID(env->GetObjectClass(this->javaObject), "exists", "(Ljava/lang/String;)Z");
+        jstring jPath = env->NewStringUTF(path);
+
+        bool result = env->CallBooleanMethod(this->javaObject, mid, jPath);
+
+        env->DeleteLocalRef(jPath);
+
+        return result;
+    }
+
+    bool DocumentSystem::deleteDirectory(const char *path)
+    {
+        JNIEnv *env = (JNIEnv *)JNI::GetEnv();
+        jmethodID mid = env->GetMethodID(env->GetObjectClass(this->javaObject), "deleteDirectory", "(Ljava/lang/String;)Z");
+        jstring jPath = env->NewStringUTF(path);
+
+        bool result = env->CallBooleanMethod(this->javaObject, mid, jPath);
+
+        env->DeleteLocalRef(jPath);
+
+        return result;
+    }
+
+    bool DocumentSystem::deleteFile(const char *path)
+    {
+        JNIEnv *env = (JNIEnv *)JNI::GetEnv();
+        jmethodID mid = env->GetMethodID(env->GetObjectClass(this->javaObject), "deleteFile", "(Ljava/lang/String;)Z");
+        jstring jPath = env->NewStringUTF(path);
+
+        bool result = env->CallBooleanMethod(this->javaObject, mid, jPath);
+
+        env->DeleteLocalRef(jPath);
+
+        return result;
+    }
+
+    bool DocumentSystem::isDirectory(const char *path)
+    {
+        JNIEnv *env = (JNIEnv *)JNI::GetEnv();
+        jmethodID mid = env->GetMethodID(env->GetObjectClass(this->javaObject), "isDirectory", "(Ljava/lang/String;)Z");
+        jstring jPath = env->NewStringUTF(path);
+
+        bool result = env->CallBooleanMethod(this->javaObject, mid, jPath);
+
+        env->DeleteLocalRef(jPath);
+
+        return result;
+    }
+
 }

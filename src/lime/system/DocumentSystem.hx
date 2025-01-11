@@ -1,6 +1,6 @@
 package lime.system;
 
-#if (!lime_doc_gen || android)
+#if (!lime_doc_gen || (android && lime_cffi))
 import lime._internal.backend.native.NativeCFFI;
 import lime.utils.Bytes;
 
@@ -31,6 +31,36 @@ class DocumentSystem {
 			return null;
 		}
 		return bytes;
+	}
+
+	public function createDirectory(path:String):Void
+	{
+		NativeCFFI.lime_documentsystem_create_directory(handle, path);
+	}
+
+	public function readDirectory(path:String):Array<String>
+	{
+		return NativeCFFI.lime_documentsystem_read_directory(handle, path);
+	}
+
+	public function exists(path:String):Bool
+	{
+		return NativeCFFI.lime_documentsystem_exists(handle, path);
+	}
+
+	public function deleteDirectory(path:String):Bool
+	{
+		return NativeCFFI.lime_documentsystem_delete_directory(handle, path);
+	}
+
+	public function deleteFile(path:String):Bool
+	{
+		return NativeCFFI.lime_documentsystem_delete_file(handle, path);
+	}
+
+	public function isDirectory(path:String):Bool
+	{
+		return NativeCFFI.lime_documentsystem_is_directory(handle, path);
 	}
 }
 #end

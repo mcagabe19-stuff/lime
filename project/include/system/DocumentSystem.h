@@ -23,6 +23,12 @@ namespace lime
 
         const QuickVec<unsigned char> readBytes(const char *path);
         void writeBytes(const char *path, Bytes *data);
+        void createDirectory(const char *path);
+        value readDirectory(const char *path);
+        bool exists(const char *path);
+        bool deleteDirectory(const char *path);
+        bool deleteFile(const char *path);
+        bool isDirectory(const char *path);
 
     private:
         jobject javaObject;

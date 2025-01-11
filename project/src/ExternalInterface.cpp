@@ -2316,6 +2316,71 @@ namespace lime {
 	}
 
 
+	void lime_documentsystem_create_directory(value handle, HxString path) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		documentSystem->createDirectory (hxs_utf8(path, nullptr));
+		#endif
+
+	}
+
+	value lime_documentsystem_read_directory(value handle, HxString path) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		return documentSystem->readDirectory (hxs_utf8(path, nullptr));
+		#else
+		return alloc_null ();
+		#endif
+
+	}
+
+	bool lime_documentsystem_exists(value handle, HxString path) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		return documentSystem->exists (hxs_utf8(path, nullptr));
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	bool lime_documentsystem_delete_directory(value handle, HxString path) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		return documentSystem->deleteDirectory (hxs_utf8(path, nullptr));
+		#else
+		return false;
+		#endif
+
+	}
+
+	bool lime_documentsystem_delete_file(value handle, HxString path) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		return documentSystem->deleteFile (hxs_utf8(path, nullptr));
+		#else
+		return false;
+		#endif
+
+	}
+
+	bool lime_documentsystem_is_directory(value handle, HxString path) {
+
+		#ifdef ANDROID
+		DocumentSystem* documentSystem = (DocumentSystem*)val_data (handle);
+		return documentSystem->isDirectory (hxs_utf8(path, nullptr));
+		#else
+		return false;
+		#endif
+
+	}
+
 
 	void lime_joystick_event_manager_register (value callback, value eventObject) {
 
@@ -4054,6 +4119,12 @@ namespace lime {
 	DEFINE_PRIME1 (lime_documentsystem_create);
 	DEFINE_PRIME3v (lime_documentsystem_write_bytes);
 	DEFINE_PRIME3 (lime_documentsystem_read_bytes);
+	DEFINE_PRIME2v (lime_documentsystem_create_directory);
+	DEFINE_PRIME2 (lime_documentsystem_read_directory);
+	DEFINE_PRIME2 (lime_documentsystem_exists);
+	DEFINE_PRIME2 (lime_documentsystem_delete_directory);
+	DEFINE_PRIME2 (lime_documentsystem_delete_file);
+	DEFINE_PRIME2 (lime_documentsystem_is_directory);
 	DEFINE_PRIME2v (lime_joystick_event_manager_register);
 	DEFINE_PRIME1 (lime_joystick_get_device_guid);
 	DEFINE_PRIME1 (lime_joystick_get_device_name);

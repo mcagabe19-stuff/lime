@@ -2,6 +2,7 @@ package org.haxe.lime;
 
 import android.content.Context;
 import android.content.Intent;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -194,6 +195,11 @@ public class FileDialog extends Extension
         mainActivity.startActivityForResult(intent, DOCUMENT_TREE_REQUEST_CODE);
     }
 
+	public static void getPersistableURIAccess(String uriStr)
+	{
+		mainContext.getContentResolver().takePersistableUriPermission(Uri.parse(uriStr), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+	}
+
 	@Override
 	public boolean onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -202,7 +208,7 @@ public class FileDialog extends Extension
 			String uri = null;
 			byte[] bytesData = null;
 
-			if (resultCode == mainActivity.RESULT_OK && data != null && data.getData() != null)
+			if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null)
 			{
 				uri = data.getData().toString();
 				switch (requestCode)
