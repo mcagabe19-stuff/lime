@@ -13,7 +13,7 @@ namespace lime
 
         if (obj == nullptr)
         {
-            __android_log_print(ANDROID_LOG_VERBOSE, "Lime", "Failed to create a DocumentSystem Java object", pthread_self());
+            __android_log_print(ANDROID_LOG_VERBOSE, "Lime", "Failed to create a DocumentSystem Java object: %p", pthread_self());
             return;
         }
 
