@@ -70,20 +70,16 @@ android {
 
 	buildTypes {
 		release {
-			::if (ANDROID_MINIFY)::
-			// minifyEnabled true
-			// shrinkResources true
-			// proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-			::end::
 			minifyEnabled false
 			signingConfig signingConfigs.release
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
 		}
 	}
 
 	::if (ANDROID_USE_ANDROIDX)::
 	buildFeatures {
-        buildConfig = true
-    }
+        	buildConfig = true
+	}
 	::end::
 
 	android.applicationVariants.all { variant ->
