@@ -33,6 +33,11 @@ class DocumentSystem {
 		return bytes;
 	}
 
+	public function getContent(path:String):String
+	{
+		return readBytes(path).toString();
+	}
+
 	public function createDirectory(path:String):Void
 	{
 		NativeCFFI.lime_documentsystem_create_directory(handle, path);
