@@ -1,6 +1,6 @@
 package lime.system;
 
-#if (!lime_doc_gen || (android && lime_cffi))
+#if (android && lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 import lime.utils.Bytes;
 
