@@ -50,7 +50,7 @@ class HTML5AudioSource
 		untyped parent.buffer.__srcHowl._volume = cacheVolume;
 		// setGain (parent.gain);
 
-		setPosition(parent.position);
+		// setPosition(parent.position);
 
 		parent.buffer.__srcHowl.on("end", howl_onEnd, id);
 
@@ -246,7 +246,7 @@ class HTML5AudioSource
 		position.w = value.w;
 
 		#if lime_howlerjs
-		if (parent.buffer != null && parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(position.x, position.y, position.z, id);
+		// if (parent.buffer != null && parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(position.x, position.y, position.z, id);
 		// There are more settings to the position of the sound on the "pannerAttr()" function of howler. Maybe somebody who understands sound should look into it?
 		#end
 

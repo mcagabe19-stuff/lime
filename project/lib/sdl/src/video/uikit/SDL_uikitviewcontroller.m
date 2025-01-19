@@ -56,7 +56,6 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 {
     @autoreleasepool {
         SDL_uikitviewcontroller *viewcontroller = (__bridge SDL_uikitviewcontroller *) userdata;
-        viewcontroller.homeIndicatorHidden = (hint && *hint) ? SDL_atoi(hint) : -1;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
         if ([viewcontroller respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
@@ -223,29 +222,12 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 - (BOOL)prefersHomeIndicatorAutoHidden
 {
-    BOOL hidden = NO;
-    if (self.homeIndicatorHidden == 1) {
-        hidden = YES;
-    }
-    return hidden;
+    return YES;
 }
 
 - (UIRectEdge)preferredScreenEdgesDeferringSystemGestures
 {
-    if (self.homeIndicatorHidden >= 0) {
-        if (self.homeIndicatorHidden == 2) {
-            return UIRectEdgeAll;
-        } else {
-            return UIRectEdgeNone;
-        }
-    }
-
-    /* By default, fullscreen and borderless windows get all screen gestures */
-    if ((window->flags & (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_BORDERLESS)) != 0) {
-        return UIRectEdgeAll;
-    } else {
-        return UIRectEdgeNone;
-    }
+    return UIRectEdgeBottom;
 }
 
 - (BOOL)prefersPointerLocked
