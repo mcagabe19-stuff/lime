@@ -8,7 +8,7 @@ env:
 
 jobs:
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,46 +54,18 @@ jobs:
             lime.png
           if-no-files-found: error
   linuxarm:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libdrm-dev libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm2_2.4.101-2_armhf.deb
-          sudo dpkg-deb -x libdrm2_2.4.101-2_armhf.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm-dev_2.4.101-2_armhf.deb
-          sudo dpkg-deb -x libdrm-dev_2.4.101-2_armhf.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl1_1.3.1-1_armhf.deb
-          sudo dpkg-deb -x libegl1_1.3.1-1_armhf.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl-dev_1.3.1-1_armhf.deb
-          sudo dpkg-deb -x libegl-dev_1.3.1-1_armhf.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles2_1.3.1-1_armhf.deb
-          sudo dpkg-deb -x libgles2_1.3.1-1_armhf.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles-dev_1.3.1-1_armhf.deb
-          sudo dpkg-deb -x libgles-dev_1.3.1-1_armhf.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm2_2.4.101-2_arm64.deb
-          sudo dpkg-deb -x libdrm2_2.4.101-2_arm64.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libd/libdrm/libdrm-dev_2.4.101-2_arm64.deb
-          sudo dpkg-deb -x libdrm-dev_2.4.101-2_arm64.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl1_1.3.1-1_arm64.deb
-          sudo dpkg-deb -x libegl1_1.3.1-1_arm64.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libegl-dev_1.3.1-1_arm64.deb
-          sudo dpkg-deb -x libegl-dev_1.3.1-1_arm64.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles2_1.3.1-1_arm64.deb
-          sudo dpkg-deb -x libgles2_1.3.1-1_arm64.deb /
-          wget -q http://mirrors.ocf.berkeley.edu/ubuntu-ports/pool/main/libg/libglvnd/libgles-dev_1.3.1-1_arm64.deb
-          sudo dpkg-deb -x libgles-dev_1.3.1-1_arm64.deb /
-      - name: Setup Haxe
-        uses: krdlab/setup-haxe@master
-        with:
-          haxe-version: ${{ env.HAXE_VERSION }}
-      - name: Set HAXEPATH
-        run: echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+          sudo dpkg --add-architecture armhf
+          sudo apt update
+          sudo apt-get install -y haxe gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libdrm-dev libgl1-mesa-dev libglu1-mesa-dev libpulse-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libdrm-dev:armhf libgl1-mesa-dev:armhf libglu1-mesa-dev:armhf libpulse-dev:armhf libasound2-dev:armhf libx11-dev:armhf libxext-dev:armhf libxi-dev:armhf libxrandr-dev:armhf libxinerama-dev:armhf libmbedtls-dev:armhf libpng-dev:armhf libturbojpeg-dev:armhf libuv1-dev:armhf libvorbis-dev:armhf
       - name: Install Haxe dependencies
         run: |
+          haxelib setup ~/haxelib
           haxelib git hxcpp https://github.com/mcagabe19-stuff/hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -104,7 +76,7 @@ jobs:
       - name: Rebuild Lime
         run: |
           CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ HXCPP_STRIP=arm-linux-gnueabihf-strip setarch linux32 haxelib run lime rebuild linux -armv7 -release -nocolor -nocffi -eval -D HXCPP_ARMV7
-          CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ HXCPP_STRIP=aarch64-linux-gnu-strip haxelib run lime rebuild linux -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
+          haxelib run lime rebuild linux -arm64 -release -nocolor -nocffi -eval -D HXCPP_ARM64
       - name: Upload Artifact (armhf)
         uses: actions/upload-artifact@v4
         with:
