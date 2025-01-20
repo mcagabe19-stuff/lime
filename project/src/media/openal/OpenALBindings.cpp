@@ -1,4 +1,4 @@
-#if defined (IPHONE) || defined (TVOS) || (defined (HX_MACOS) && !defined (LIME_OPENALSOFT))
+#if defined (TVOS) || ((defined (IPHONE) || defined (HX_MACOS)) && !defined (LIME_OPENALSOFT))
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #define LIME_OPENAL_DELETION_DELAY 600

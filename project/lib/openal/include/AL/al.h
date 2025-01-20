@@ -21,7 +21,6 @@ extern "C" {
  #define AL_APIENTRY
 #endif
 
-
 /** Deprecated macro. */
 #define OPENAL
 #define ALAPI                                    AL_API

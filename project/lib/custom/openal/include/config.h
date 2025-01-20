@@ -28,4 +28,8 @@
 
 #include "config-android.h"
 
+#elif defined (IPHONE)
+
+#include "config-ios.h"
+
 #endif
