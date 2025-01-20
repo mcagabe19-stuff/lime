@@ -29,7 +29,7 @@ jobs:
         run: haxelib dev lime ${{ github.workspace }}
       - name: Rebuild Lime
         run: |
-          haxelib run lime rebuild ios -release -nocolor -nocffi
+          haxelib run lime rebuild ios -release -nocolor -nocffi -eval
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
