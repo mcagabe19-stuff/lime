@@ -1,5 +1,4 @@
 a1-clip-fill-rule
-alpha-similar
 big-empty-box
 big-empty-triangle
 big-little-box
@@ -11,7 +10,6 @@ bug-image-compositor
 bug-source-cu
 clip-device-offset
 clip-fill-rule-pixel-aligned
-clip-unbounded
 coverage-rhombus
 culled-glyphs
 device-offset
@@ -33,7 +31,6 @@ image-surface-source
 linear-gradient-one-stop
 mask-ctm
 mask-surface-ctm
-negative-stride-image
 nil-surface
 operator-www
 overlapping-boxes

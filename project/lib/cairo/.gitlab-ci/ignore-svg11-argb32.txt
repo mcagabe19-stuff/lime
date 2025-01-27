@@ -19,7 +19,6 @@ paint-source-alpha
 paint-with-alpha
 paint-with-alpha-clip
 paint-with-alpha-clip-mask
-record1414x-fill-alpha
 record1414x-paint-alpha
 record1414x-paint-alpha-clip
 record1414x-paint-alpha-clip-mask
@@ -50,3 +49,4 @@ text-rotate
 text-unhinted-metrics
 tighten-bounds
 unbounded-operator
+user-font-color

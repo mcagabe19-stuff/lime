@@ -2,7 +2,6 @@ a1-bug
 a1-clip-fill-rule
 a1-tiger
 aliasing
-alpha-similar
 arc-direction
 arc-looping-dash
 big-empty-box
@@ -41,7 +40,6 @@ clip-stroke
 clip-stroke-unbounded
 clip-text
 clip-twice
-clip-unbounded
 close-path-current-point
 copy-path
 coverage-abutting
