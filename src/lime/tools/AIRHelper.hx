@@ -80,11 +80,11 @@ class AIRHelper
 			case ANDROID:
 				if (project.debug)
 				{
-					airTarget = "apk-debug";
+					airTarget = "apk-debug-captive-runtime";
 				}
 				else
 				{
-					airTarget = "apk";
+					airTarget = "apk-captive-runtime";
 				}
 
 			// extension = ".apk";
@@ -194,6 +194,12 @@ class AIRHelper
 		{
 			args.push("-platformsdk");
 			args.push(IOSHelper.getSDKDirectory(project));
+		}
+
+		if (targetPlatform == ANDROID)
+		{
+			args.push("-platformsdk");
+			args.push(project.environment.get("ANDROID_SDK"));
 		}
 
 		if (fileDirectory != null && fileDirectory != "")

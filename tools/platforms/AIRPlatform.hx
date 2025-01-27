@@ -257,8 +257,9 @@ class AIRPlatform extends FlashPlatform
 		embedded = FlashHelper.embedAssets(project, targetDirectory);
 
 		var context = generateContext();
+		context.PLATFORM = targetPlatform;
 		context.OUTPUT_DIR = targetDirectory;
-		context.AIR_SDK_VERSION = project.config.getString("air.sdk-version", "28.0");
+		context.AIR_SDK_VERSION = project.config.getString("air.sdk-version", "33.1");
 
 		var buildNumber = Std.string(context.APP_BUILD_NUMBER);
 
@@ -332,6 +333,16 @@ class AIRPlatform extends FlashPlatform
 				context.extensions.push(extension);
 				context.HAXE_FLAGS += "\n-swf-lib " + dependency.path;
 			}
+		}
+
+		if (!project.environment.exists("ANDROID_SDK"))
+		{
+			var command = #if lime "lime" #else "hxp" #end;
+			var toolsBase = Type.resolveClass("CommandLineTools");
+			if (toolsBase != null) command = Reflect.field(toolsBase, "commandName");
+
+			Log.error("You must define ANDROID_SDK to target AIR for Android, please run '" + command + " setup android' first");
+			Sys.exit(1);
 		}
 
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);

@@ -32,8 +32,12 @@
 		::if (WIN_HARDWARE)::<depthAndStencil>true</depthAndStencil>::end::
 		::if WIN_ALLOW_HIGH_DPI::<requestedDisplayResolution>high</requestedDisplayResolution>::end::
 	</initialWindow>
-	<installFolder>::if (APP_COMPANY != "")::::APP_COMPANY::/::APP_TITLE::::else::::APP_TITLE::::end::</installFolder>
-	<programMenuFolder>::APP_TITLE::</programMenuFolder>
+	::if (PLATFORM != "android")::
+    ::if (PLATFORM != "ios")::
+    <installFolder>::if (APP_COMPANY != "")::::APP_COMPANY::/::APP_TITLE::::else::::APP_TITLE::::end::</installFolder>
+    <programMenuFolder>::APP_TITLE::</programMenuFolder>
+    ::end::
+	::end::
 	::if (icons != null)::<icon>::foreach icons::
 		<image::size::x::size::>::path::</image::size::x::size::>::end::
 	</icon>::end::
@@ -54,6 +58,7 @@
 			</icon>
 		</fileType>
 	</fileTypes> -->
+	::if (PLATFORM == "android")::
 	<android>
 		<manifestAdditions>
 			<![CDATA[
@@ -66,6 +71,8 @@
 			]]>
 		</manifestAdditions>
 	</android>
+	::end::
+	::if (PLATFORM == "ios")::
 	<iPhone>
 		<InfoAdditions>
 			<![CDATA[
@@ -77,6 +84,7 @@
 		</InfoAdditions>
 		<requestedDisplayResolution>::if WIN_ALLOW_HIGH_DPI::high::else::standard::end::</requestedDisplayResolution>
 	</iPhone>
+	::end::
 	::if (extensions != null)::<extensions>::foreach extensions::
 		<extensionID>::name::</extensionID>::end::
 	</extensions>::end::
