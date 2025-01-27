@@ -56,7 +56,10 @@ namespace lime {
 	static int id_refreshRate;
 	static int id_supportedModes;
 	static int id_width;
+
 	static bool init = false;
+
+	static Uint64 start_counter = SDL_GetPerformanceCounter();
 
 
 	const char* Clipboard::GetText () {
@@ -300,7 +303,7 @@ namespace lime {
 		if (useCFFIValue) {
 
 			if (!init) {
-
+				// display shit
 				id_bounds = val_id ("bounds");
 				id_currentMode = val_id ("currentMode");
 				id_dpi = val_id ("dpi");
@@ -545,9 +548,9 @@ namespace lime {
 
 
 	double System::GetTimer () {
-
-		return SDL_GetTicks ();
-
+		const double frequency = (double)SDL_GetPerformanceFrequency();
+		const double counter = (double)SDL_GetPerformanceCounter() - (double)start_counter;
+		return (counter / frequency) * 1000.0;
 	}
 
 
