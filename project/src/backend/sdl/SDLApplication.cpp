@@ -166,6 +166,10 @@ namespace lime {
 
 			case SDL_APP_DIDENTERFOREGROUND:
 
+				#ifdef __ANDROID__
+				SDL_GL_SetSwapInterval(0);
+				#endif
+
 				windowEvent.type = WINDOW_ACTIVATE;
 				WindowEvent::Dispatch (&windowEvent);
 
