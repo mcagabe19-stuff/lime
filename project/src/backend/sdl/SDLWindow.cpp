@@ -34,7 +34,6 @@ namespace lime {
 	static bool displayModeSet = false;
 	#endif
 
-
 	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
 
 		sdlTexture = 0;
@@ -952,7 +951,6 @@ namespace lime {
 
 		SDL_DisplayMode mode = { pixelFormat, displayMode->width, displayMode->height, displayMode->refreshRate, 0 };
 
-		#if !defined(IPHONE) && !defined(APPLETV) && !defined(ANDROID)
 		if (SDL_SetWindowDisplayMode (sdlWindow, &mode) == 0) {
 
 			displayModeSet = true;
@@ -964,9 +962,6 @@ namespace lime {
 			}
 
 		}
-		#else
-		SDL_SetWindowDisplayMode (sdlWindow, &mode);
-		#endif
 
 	}
 
@@ -974,8 +969,6 @@ namespace lime {
 	bool SDLWindow::SetFullscreen (bool fullscreen) {
 
 		if (fullscreen) {
-
-			#if !defined(IPHONE) && !defined(APPLETV) && !defined(ANDROID)
 
 			if (displayModeSet) {
 
@@ -986,10 +979,6 @@ namespace lime {
 				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 			}
-
-			#else
-			SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
-			#endif
 
 		} else {
 
