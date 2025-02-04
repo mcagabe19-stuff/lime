@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # flake8: noqa: F821
 
-import logging
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
 """usage: ./gen-use-table.py IndicSyllabicCategory.txt IndicPositionalCategory.txt ArabicShaping.txt DerivedCoreProperties.txt UnicodeData.txt Blocks.txt Scripts.txt IndicSyllabicCategory-Additional.txt IndicPositionalCategory-Additional.txt
 
 Input files:
@@ -17,6 +14,10 @@ Input files:
 * ms-use/IndicSyllabicCategory-Additional.txt
 * ms-use/IndicPositionalCategory-Additional.txt
 """
+
+import logging
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+
 
 import sys
 
@@ -108,6 +109,7 @@ property_names = [
 	'Nukta',
 	'Virama',
 	'Pure_Killer',
+	'Reordering_Killer',
 	'Invisible_Stacker',
 	'Vowel_Independent',
 	'Vowel_Dependent',
@@ -140,6 +142,10 @@ property_names = [
 	'Symbol_Modifier',
 	'Hieroglyph',
 	'Hieroglyph_Joiner',
+	'Hieroglyph_Mark_Begin',
+	'Hieroglyph_Mark_End',
+	'Hieroglyph_Mirror',
+	'Hieroglyph_Modifier',
 	'Hieroglyph_Segment_Begin',
 	'Hieroglyph_Segment_End',
 	# Indic_Positional_Category
@@ -234,10 +240,14 @@ def is_HIEROGLYPH(U, UISC, UDI, UGC, AJT):
 	return UISC == Hieroglyph
 def is_HIEROGLYPH_JOINER(U, UISC, UDI, UGC, AJT):
 	return UISC == Hieroglyph_Joiner
+def is_HIEROGLYPH_MIRROR(U, UISC, UDI, UGC, AJT):
+	return UISC == Hieroglyph_Mirror
+def is_HIEROGLYPH_MOD(U, UISC, UDI, UGC, AJT):
+	return UISC == Hieroglyph_Modifier
 def is_HIEROGLYPH_SEGMENT_BEGIN(U, UISC, UDI, UGC, AJT):
-	return UISC == Hieroglyph_Segment_Begin
+	return UISC in [Hieroglyph_Mark_Begin, Hieroglyph_Segment_Begin]
 def is_HIEROGLYPH_SEGMENT_END(U, UISC, UDI, UGC, AJT):
-	return UISC == Hieroglyph_Segment_End
+	return UISC in [Hieroglyph_Mark_End, Hieroglyph_Segment_End]
 def is_INVISIBLE_STACKER(U, UISC, UDI, UGC, AJT):
 	# Split off of HALANT
 	return (UISC == Invisible_Stacker
@@ -254,6 +264,8 @@ def is_OTHER(U, UISC, UDI, UGC, AJT):
 		and not is_SYM_MOD(U, UISC, UDI, UGC, AJT)
 		and not is_Word_Joiner(U, UISC, UDI, UGC, AJT)
 	)
+def is_REORDERING_KILLER(U, UISC, UDI, UGC, AJT):
+	return UISC == Reordering_Killer
 def is_REPHA(U, UISC, UDI, UGC, AJT):
 	return UISC in [Consonant_Preceding_Repha, Consonant_Prefixed]
 def is_SAKOT(U, UISC, UDI, UGC, AJT):
@@ -290,11 +302,14 @@ use_mapping = {
 	'HN':	is_HALANT_NUM,
 	'IS':	is_INVISIBLE_STACKER,
 	'G':	is_HIEROGLYPH,
+	'HM':	is_HIEROGLYPH_MOD,
+	'HR':	is_HIEROGLYPH_MIRROR,
 	'J':	is_HIEROGLYPH_JOINER,
 	'SB':	is_HIEROGLYPH_SEGMENT_BEGIN,
 	'SE':	is_HIEROGLYPH_SEGMENT_END,
 	'ZWNJ':	is_ZWNJ,
 	'O':	is_OTHER,
+	'RK':	is_REORDERING_KILLER,
 	'R':	is_REPHA,
 	'Sk':	is_SAKOT,
 	'SM':	is_SYM_MOD,
@@ -336,6 +351,8 @@ use_positions = {
 		'Blw': [Bottom],
 	},
 	'H': None,
+	'HM': None,
+	'HR': None,
 	'HVM': None,
 	'IS': None,
 	'B': None,
@@ -345,6 +362,7 @@ use_positions = {
 		'Pst': [Not_Applicable],
 	},
 	'R': None,
+	'RK': None,
 	'SUB': None,
 }
 
@@ -376,7 +394,11 @@ def map_to_use(data):
 		#  and https://github.com/harfbuzz/harfbuzz/issues/1631
 		if U in [0x11302, 0x11303, 0x114C1]: UIPC = Top
 
-		assert (UIPC in [Not_Applicable, Visual_Order_Left] or U == 0x0F7F or
+		# TODO: https://github.com/microsoft/font-tools/issues/17#issuecomment-2346952091
+		if U == 0x113CF: UIPC = Bottom
+
+		assert (UIPC in [Not_Applicable, Visual_Order_Left] or
+			U in {0x0F7F, 0x11A3A} or
 			USE in use_positions), "%s %s %s %s %s %s %s" % (hex(U), UIPC, USE, UISC, UDI, UGC, AJT)
 
 		pos_mapping = use_positions.get(USE, None)

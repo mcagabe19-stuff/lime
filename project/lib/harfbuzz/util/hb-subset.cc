@@ -27,8 +27,10 @@
 
 #include "batch.hh"
 #include "face-options.hh"
+#include "glib.h"
 #include "main-font-text.hh"
 #include "output-options.hh"
+#include "helper-subset.hh"
 
 #include <hb-subset.h>
 
@@ -126,6 +128,8 @@ struct subset_main_t : option_parser_t, face_options_t, output_options_t<false>
       write_file (output_file, result);
       hb_blob_destroy (result);
     }
+    else if (hb_face_get_glyph_count (orig_face) == 0)
+      fail (false, "Invalid font file.");
 
     hb_face_destroy (new_face);
     if (preprocess)
@@ -674,6 +678,7 @@ parse_drop_tables (const char *name,
 }
 
 #ifndef HB_NO_VAR
+
 static gboolean
 parse_instance (const char *name,
 		const char *arg,
@@ -686,61 +691,66 @@ parse_instance (const char *name,
     return true;
   }
 
-  char *s = strtok((char *) arg, "=");
-  while (s)
+  return parse_instancing_spec(arg, subset_main->face, subset_main->input, error);
+}
+#endif
+
+static gboolean
+parse_glyph_map (const char *name,
+		 const char *arg,
+		 gpointer    data,
+		 GError    **error)
+{
+  // Glyph map has the following format:
+  // <entry 1>,<entry 2>,...,<entry n>
+  // <entry> = <old gid>:<new gid>
+  subset_main_t *subset_main = (subset_main_t *) data;
+  hb_subset_input_t* input = subset_main->input;
+  hb_set_t *glyphs = hb_subset_input_glyph_set(input);
+
+  char *s = (char *) arg;
+  char *p;
+
+  while (s && *s)
   {
-    unsigned len = strlen (s);
-    if (len > 4)  //Axis tags are 4 bytes.
+    while (*s && strchr (", ", *s))
+      s++;
+    if (!*s)
+      break;
+
+    errno = 0;
+    hb_codepoint_t start_code = strtoul (s, &p, 10);
+    if (s[0] == '-' || errno || s == p)
     {
       g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
-		   "Failed parsing axis tag at: '%s'", s);
+		   "Failed parsing glyph map at: '%s'", s);
       return false;
     }
 
-    hb_tag_t axis_tag = hb_tag_from_string (s, len);
-
-    s = strtok(nullptr, ", ");
-    if (!s)
+    if (!p || p[0] != ':') // ranges
     {
       g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
-		   "Value not specified for axis: %c%c%c%c", HB_UNTAG (axis_tag));
+		   "Failed parsing glyph map at: '%s'", s);
       return false;
     }
 
-    if (strcmp (s, "drop") == 0)
+    s = ++p;
+    hb_codepoint_t end_code = strtoul (s, &p, 10);
+    if (s[0] == '-' || errno || s == p)
     {
-      if (!hb_subset_input_pin_axis_to_default (subset_main->input, subset_main->face, axis_tag))
-      {
-        g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
-                     "Cannot pin axis: '%c%c%c%c', not present in fvar", HB_UNTAG (axis_tag));
-        return false;
-      }
+      g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
+		"Failed parsing glyph map at: '%s'", s);
+      return false;
     }
-    else
-    {
-      errno = 0;
-      char *p;
-      float axis_value = strtof (s, &p);
-      if (errno || s == p)
-      {
-        g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
-                     "Failed parsing axis value at: '%s'", s);
-        return false;
-      }
 
-      if (!hb_subset_input_pin_axis_location (subset_main->input, subset_main->face, axis_tag, axis_value))
-      {
-        g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
-                     "Cannot pin axis: '%c%c%c%c', not present in fvar", HB_UNTAG (axis_tag));
-        return false;
-      }
-    }
-    s = strtok(nullptr, "=");
+    hb_set_add(glyphs, start_code);
+    hb_map_set (hb_subset_input_old_to_new_glyph_mapping (input), start_code, end_code);
+
+    s = p;
   }
 
   return true;
 }
-#endif
 
 template <GOptionArgFunc line_parser, bool allow_comments=true>
 static gboolean
@@ -784,6 +794,7 @@ parse_file_for (const char *name,
       g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
 		   "Failed reading file `%s': %s",
 		   arg, strerror (errno));
+      fclose (fp);
       return false;
     }
     g_string_append_c (gs, '\0');
@@ -803,6 +814,8 @@ parse_file_for (const char *name,
   while (!feof (fp));
 
   g_string_free (gs, false);
+
+  fclose (fp);
 
   return true;
 }
@@ -894,6 +907,7 @@ subset_main_t::add_options ()
 
   GOptionEntry other_entries[] =
   {
+    {"gid-map", 0, 0, G_OPTION_ARG_CALLBACK, (gpointer) &parse_glyph_map, "Specify a glyph mapping to use, any unmapped gids will be automatically assigned.", "List of pairs old_gid1:new_gid1,old_gid2:new_gid2,..."},
     {"name-IDs",	0, 0, G_OPTION_ARG_CALLBACK, (gpointer) &parse_nameids,		"Subset specified nameids. Use --name-IDs-=... to subtract from the current set.", "list of int numbers or *"},
     {"name-IDs-",	0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK, (gpointer) &parse_nameids,		"Subset specified nameids", "list of int numbers or *"},
     {"name-IDs+",	0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK, (gpointer) &parse_nameids,		"Subset specified nameids", "list of int numbers or *"},
@@ -913,14 +927,15 @@ subset_main_t::add_options ()
     {"drop-tables+",	0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK, (gpointer) &parse_drop_tables,	"Drop the specified tables.", "list of string table tags or *"},
     {"drop-tables-",	0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK, (gpointer) &parse_drop_tables,	"Drop the specified tables.", "list of string table tags or *"},
 #ifndef HB_NO_VAR
-    {"instance",	0, 0, G_OPTION_ARG_CALLBACK, (gpointer) &parse_instance,
-     "(Partially|Fully) Instantiate a variable font. A location consists of the tag of a variation axis, followed by '=', followed by a\n"
-     "number or the literal string 'drop'\n"
-     "                                                        "
-     "For example: --instance=\"wdth=100 wght=200\" or --instance=\"wdth=drop\"\n"
-     "                                                        "
-     "Note: currently only fully instancing is supported\n",
-     "list of comma separated axis-locations"},
+     {"variations",	0, 0, G_OPTION_ARG_CALLBACK, (gpointer) &parse_instance,
+     "(Partially|Fully) Instantiate a variable font. A location consists of the tag "
+     "of a variation axis, followed by '=', followed by a number or the literal "
+     "string 'drop'. For example: --variations=\"wdth=100 wght=200\" or --variations=\"wdth=drop\""
+     ,
+     "list of comma separated axis-locations."
+     },
+     {"instance",	0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK, (gpointer) &parse_instance,
+     "Alias for --variations.", "list of comma separated axis-locations"},
 #endif
     {nullptr}
   };
@@ -941,12 +956,17 @@ subset_main_t::add_options ()
     {"set-overlaps-flag",	0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_SET_OVERLAPS_FLAG>,	"Set the overlaps flag on each glyph.", nullptr},
     {"notdef-outline",		0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_NOTDEF_OUTLINE>,		"Keep the outline of \'.notdef\' glyph", nullptr},
     {"no-prune-unicode-ranges",	0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_NO_PRUNE_UNICODE_RANGES>,	"Don't change the 'OS/2 ulUnicodeRange*' bits.", nullptr},
+    {"no-layout-closure",	0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_NO_LAYOUT_CLOSURE>,	"Don't perform glyph closure for layout substitution (GSUB).", nullptr},
     {"glyph-names",		0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_GLYPH_NAMES>,		"Keep PS glyph names in TT-flavored fonts. ", nullptr},
     {"passthrough-tables",	0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_PASSTHROUGH_UNRECOGNIZED>,	"Do not drop tables that the tool does not know how to subset.", nullptr},
     {"preprocess-face",		0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &this->preprocess,
      "Alternative name for --preprocess.", nullptr},
     {"preprocess",		0, 0, G_OPTION_ARG_NONE, &this->preprocess,
      "If set preprocesses the face with the add accelerator option before actually subsetting.", nullptr},
+#ifdef HB_EXPERIMENTAL_API
+    {"iftb-requirements",	0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_IFTB_REQUIREMENTS>,	"Enforce requirements needed to use the subset with incremental font transfer IFTB patches.", nullptr},
+#endif
+    {"optimize",		0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer) &set_flag<HB_SUBSET_FLAGS_OPTIMIZE_IUP_DELTAS>,	"Perform IUP delta optimization on the resulting gvar table's deltas", nullptr},
     {nullptr}
   };
   add_group (flag_entries,

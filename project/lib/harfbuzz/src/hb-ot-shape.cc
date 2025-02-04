@@ -85,7 +85,7 @@ hb_ot_shape_planner_t::hb_ot_shape_planner_t (hb_face_t                     *fac
 						, apply_morx (_hb_apply_morx (face, props))
 #endif
 {
-  shaper = hb_ot_shaper_categorize (this);
+  shaper = hb_ot_shaper_categorize (props.script, props.direction, map.chosen_script[0]);
 
   script_zero_marks = shaper->zero_width_marks != HB_OT_SHAPE_ZERO_WIDTH_MARKS_NONE;
   script_fallback_mark_positioning = shaper->fallback_position;
@@ -155,7 +155,7 @@ hb_ot_shape_planner_t::compile (hb_ot_shape_plan_t           &plan,
 #endif
   bool has_gpos = !disable_gpos && hb_ot_layout_has_positioning (face);
   if (false)
-    ;
+    {}
 #ifndef HB_NO_AAT_SHAPE
   /* Prefer GPOS over kerx if GSUB is present;
    * https://github.com/harfbuzz/harfbuzz/issues/3008 */
@@ -167,15 +167,16 @@ hb_ot_shape_planner_t::compile (hb_ot_shape_plan_t           &plan,
 
   if (!plan.apply_kerx && (!has_gpos_kern || !plan.apply_gpos))
   {
+    if (false) {}
 #ifndef HB_NO_AAT_SHAPE
-    if (has_kerx)
+    else if (has_kerx)
       plan.apply_kerx = true;
-    else
 #endif
 #ifndef HB_NO_OT_KERN
-    if (hb_ot_layout_has_kerning (face))
+    else if (hb_ot_layout_has_kerning (face))
       plan.apply_kern = true;
 #endif
+    else {}
   }
 
   plan.apply_fallback_kern = !(plan.apply_gpos || plan.apply_kerx || plan.apply_kern);
@@ -313,6 +314,8 @@ hb_ot_shape_collect_features (hb_ot_shape_planner_t *planner,
 {
   hb_ot_map_builder_t *map = &planner->map;
 
+  map->is_simple = true;
+
   map->enable_feature (HB_TAG('r','v','r','n'));
   map->add_gsub_pause (nullptr);
 
@@ -354,7 +357,10 @@ hb_ot_shape_collect_features (hb_ot_shape_planner_t *planner,
   map->enable_feature (HB_TAG ('H','A','R','F')); /* Considered discretionary. */
 
   if (planner->shaper->collect_features)
+  {
+    map->is_simple = false;
     planner->shaper->collect_features (planner);
+  }
 
   map->enable_feature (HB_TAG ('B','u','z','z')); /* Considered required. */
   map->enable_feature (HB_TAG ('B','U','Z','Z')); /* Considered discretionary. */
@@ -378,6 +384,8 @@ hb_ot_shape_collect_features (hb_ot_shape_planner_t *planner,
     map->enable_feature (HB_TAG ('v','e','r','t'), F_GLOBAL_SEARCH);
   }
 
+  if (num_user_features)
+    map->is_simple = false;
   for (unsigned int i = 0; i < num_user_features; i++)
   {
     const hb_feature_t *feature = &user_features[i];
@@ -469,9 +477,18 @@ hb_set_unicode_props (hb_buffer_t *buffer)
   {
     _hb_glyph_info_set_unicode_props (&info[i], buffer);
 
+    unsigned gen_cat = _hb_glyph_info_get_general_category (&info[i]);
+    if (FLAG_UNSAFE (gen_cat) &
+	(FLAG (HB_UNICODE_GENERAL_CATEGORY_LOWERCASE_LETTER) |
+	 FLAG (HB_UNICODE_GENERAL_CATEGORY_UPPERCASE_LETTER) |
+	 FLAG (HB_UNICODE_GENERAL_CATEGORY_TITLECASE_LETTER) |
+	 FLAG (HB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER) |
+	 FLAG (HB_UNICODE_GENERAL_CATEGORY_SPACE_SEPARATOR)))
+      continue;
+
     /* Marks are already set as continuation by the above line.
      * Handle Emoji_Modifier and ZWJ-continuation. */
-    if (unlikely (_hb_glyph_info_get_general_category (&info[i]) == HB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL &&
+    if (unlikely (gen_cat == HB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL &&
 		  hb_in_range<hb_codepoint_t> (info[i].codepoint, 0x1F3FBu, 0x1F3FFu)))
     {
       _hb_glyph_info_set_continuation (&info[i]);
@@ -749,6 +766,14 @@ hb_ot_shape_setup_masks_fraction (const hb_ot_shape_context_t *c)
 	     _hb_glyph_info_get_general_category (&info[end]) ==
 	     HB_UNICODE_GENERAL_CATEGORY_DECIMAL_NUMBER)
 	end++;
+      if (start == i || end == i + 1)
+      {
+        if (start == i)
+	  buffer->unsafe_to_concat (start, start + 1);
+	if (end == i + 1)
+	  buffer->unsafe_to_concat (end - 1, end);
+	continue;
+      }
 
       buffer->unsafe_to_break (start, end);
 
@@ -810,6 +835,28 @@ hb_ot_zero_width_default_ignorables (const hb_buffer_t *buffer)
   for (i = 0; i < count; i++)
     if (unlikely (_hb_glyph_info_is_default_ignorable (&info[i])))
       pos[i].x_advance = pos[i].y_advance = pos[i].x_offset = pos[i].y_offset = 0;
+}
+
+static void
+hb_ot_deal_with_variation_selectors (hb_buffer_t *buffer)
+{
+  if (!(buffer->scratch_flags & HB_BUFFER_SCRATCH_FLAG_HAS_VARIATION_SELECTOR_FALLBACK) ||
+	buffer->not_found_variation_selector == HB_CODEPOINT_INVALID)
+    return;
+
+  unsigned int count = buffer->len;
+  hb_glyph_info_t *info = buffer->info;
+  hb_glyph_position_t *pos = buffer->pos;
+
+  for (unsigned int i = 0; i < count; i++)
+  {
+    if (_hb_glyph_info_is_variation_selector (&info[i]))
+    {
+      info[i].codepoint = buffer->not_found_variation_selector;
+      pos[i].x_advance = pos[i].y_advance = pos[i].x_offset = pos[i].y_offset = 0;
+      _hb_glyph_info_set_variation_selector (&info[i], false);
+    }
+  }
 }
 
 static void
@@ -941,6 +988,7 @@ hb_ot_substitute_post (const hb_ot_shape_context_t *c)
     hb_aat_layout_remove_deleted_glyphs (c->buffer);
 #endif
 
+  hb_ot_deal_with_variation_selectors (c->buffer);
   hb_ot_hide_default_ignorables (c->buffer, c->font);
 
   if (c->plan->shaper->postprocess_glyphs &&
@@ -1030,7 +1078,7 @@ hb_ot_position_plan (const hb_ot_shape_context_t *c)
    * direction is backward we don't shift and it will end up
    * hanging over the next glyph after the final reordering.
    *
-   * Note: If fallback positinoing happens, we don't care about
+   * Note: If fallback positioning happens, we don't care about
    * this as it will be overridden.
    */
   bool adjust_offsets_when_zeroing = c->plan->adjust_mark_positioning_when_zeroing &&

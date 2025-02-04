@@ -217,7 +217,7 @@ layered_glyph_dump (hb_font_t *font, hb_draw_funcs_t *funcs, unsigned face_index
       {
 	hb_font_extents_t font_extents;
 	hb_font_get_extents_for_direction (font, HB_DIRECTION_LTR, &font_extents);
-	hb_glyph_extents_t extents = {0};
+	hb_glyph_extents_t extents = {0, 0, 0, 0};
 	if (!hb_font_get_glyph_extents (font, gid, &extents))
 	{
 	  printf ("Skip gid: %u\n", gid);
@@ -245,7 +245,7 @@ layered_glyph_dump (hb_font_t *font, hb_draw_funcs_t *funcs, unsigned face_index
 	  if (hb_color_get_alpha (color) != 255)
 	    fprintf (f, "fill-opacity=\"%.3f\"", (double) hb_color_get_alpha (color) / 255.);
 	  fprintf (f, "d=\"");
-	  hb_font_get_glyph_shape (font, layers[layer].glyph, funcs, &draw_data);
+	  hb_font_draw_glyph (font, layers[layer].glyph, funcs, &draw_data);
 	  fprintf (f, "\"/>\n");
 	}
 
@@ -267,7 +267,7 @@ dump_glyphs (hb_font_t *font, hb_draw_funcs_t *funcs, unsigned face_index)
   {
     hb_font_extents_t font_extents;
     hb_font_get_extents_for_direction (font, HB_DIRECTION_LTR, &font_extents);
-    hb_glyph_extents_t extents = {0};
+    hb_glyph_extents_t extents = {0, 0, 0, 0};
     if (!hb_font_get_glyph_extents (font, gid, &extents))
     {
       printf ("Skip gid: %u\n", gid);
@@ -284,7 +284,7 @@ dump_glyphs (hb_font_t *font, hb_draw_funcs_t *funcs, unsigned face_index)
     draw_data_t draw_data;
     draw_data.ascender = font_extents.ascender;
     draw_data.f = f;
-    hb_font_get_glyph_shape (font, gid, funcs, &draw_data);
+    hb_font_draw_glyph (font, gid, funcs, &draw_data);
     fprintf (f, "\"/></svg>");
     fclose (f);
   }
@@ -513,7 +513,8 @@ main (int argc, char **argv)
 {
   if (argc != 2)
   {
-    fprintf (stderr, "usage: %s font-file.ttf\n", argv[0]);
+    fprintf (stderr, "usage: %s font-file.ttf\n\n"
+		     "This tools is unsupported and crashes on bad data.\nDon't use it.\n", argv[0]);
     exit (1);
   }
 
