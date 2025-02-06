@@ -33,9 +33,18 @@ class DocumentSystem {
 		return bytes;
 	}
 
+	public function saveContent(path:String, content:String):Void
+	{
+		writeBytes(path, Bytes.ofString(content));
+	}
+
 	public function getContent(path:String):String
 	{
-		return readBytes(path).toString();
+		var bytes = readBytes(path);
+		if (bytes == null || bytes.length == 0) {
+			return '';
+		}
+		return bytes.toString();
 	}
 
 	public function createDirectory(path:String):Void

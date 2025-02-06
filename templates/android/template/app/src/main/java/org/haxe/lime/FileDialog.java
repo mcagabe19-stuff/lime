@@ -196,7 +196,7 @@ public class FileDialog extends Extension
 
 	public static void getPersistableURIAccess(String uriStr)
 	{
-		mainContext.getContentResolver().takePersistableUriPermission(Uri.parse(uriStr), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+		mainContext.getContentResolver().takePersistableUriPermission(Uri.parse(uriStr), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 	}
 
 	@Override
