@@ -111,19 +111,14 @@ _hb_atomic_ptr_impl_cmplexch (const void **P, const void *O_, const void *N)
 #endif
 
 
-/* This should never be disabled, even under HB_NO_MT.
- * except that MSVC gives me an internal compiler error, so disabled there.
- *
- * https://github.com/harfbuzz/harfbuzz/pull/4119
- */
 #ifndef _hb_compiler_memory_r_barrier
-#if defined(__ATOMIC_ACQUIRE) // gcc-like
-static inline void _hb_compiler_memory_r_barrier () { asm volatile("": : :"memory"); }
-#elif !defined(_MSC_VER)
+/* This we always use std::atomic for; and should never be disabled...
+ * except that MSVC gives me an internal compiler error on it. */
+#if !defined(_MSC_VER)
 #include <atomic>
 #define _hb_compiler_memory_r_barrier() std::atomic_signal_fence (std::memory_order_acquire)
 #else
-static inline void _hb_compiler_memory_r_barrier () {}
+#define _hb_compiler_memory_r_barrier() do {} while (0)
 #endif
 #endif
 
@@ -204,7 +199,6 @@ struct hb_atomic_ptr_t
 
   hb_atomic_ptr_t () = default;
   constexpr hb_atomic_ptr_t (T* v) : v (v) {}
-  hb_atomic_ptr_t (const hb_atomic_ptr_t &other) = delete;
 
   void init (T* v_ = nullptr) { set_relaxed (v_); }
   void set_relaxed (T* v_) { hb_atomic_ptr_impl_set_relaxed (&v, v_); }
@@ -217,12 +211,6 @@ struct hb_atomic_ptr_t
 
   T *v = nullptr;
 };
-
-static inline bool hb_barrier ()
-{
-  _hb_compiler_memory_r_barrier ();
-  return true;
-}
 
 
 #endif /* HB_ATOMIC_HH */

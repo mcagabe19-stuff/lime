@@ -52,7 +52,6 @@ enum hb_buffer_scratch_flags_t {
   HB_BUFFER_SCRATCH_FLAG_HAS_CGJ			= 0x00000010u,
   HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS		= 0x00000020u,
   HB_BUFFER_SCRATCH_FLAG_HAS_BROKEN_SYLLABLE		= 0x00000040u,
-  HB_BUFFER_SCRATCH_FLAG_HAS_VARIATION_SELECTOR_FALLBACK= 0x00000080u,
 
   /* Reserved for shapers' internal use. */
   HB_BUFFER_SCRATCH_FLAG_SHAPER0			= 0x01000000u,
@@ -81,7 +80,6 @@ struct hb_buffer_t
   hb_codepoint_t replacement; /* U+FFFD or something else. */
   hb_codepoint_t invisible; /* 0 or something else. */
   hb_codepoint_t not_found; /* 0 or something else. */
-  hb_codepoint_t not_found_variation_selector; /* HB_CODEPOINT_INVALID or something else. */
 
   /*
    * Buffer contents
@@ -118,7 +116,6 @@ struct hb_buffer_t
 
   uint8_t allocated_var_bits;
   uint8_t serial;
-  uint32_t random_state;
   hb_buffer_scratch_flags_t scratch_flags; /* Have space-fallback, etc. */
   unsigned int max_len; /* Maximum allowed len. */
   int max_ops; /* Maximum allowed operations. */
@@ -467,16 +464,13 @@ struct hb_buffer_t
 		      start, end,
 		      true);
   }
-#ifndef HB_OPTIMIZE_SIZE
-  HB_ALWAYS_INLINE
-#endif
   void unsafe_to_concat (unsigned int start = 0, unsigned int end = -1)
   {
     if (likely ((flags & HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT) == 0))
       return;
     _set_glyph_flags (HB_GLYPH_FLAG_UNSAFE_TO_CONCAT,
 		      start, end,
-		      false);
+		      true);
   }
   void unsafe_to_break_from_outbuffer (unsigned int start = 0, unsigned int end = -1)
   {
@@ -484,9 +478,6 @@ struct hb_buffer_t
 		      start, end,
 		      true, true);
   }
-#ifndef HB_OPTIMIZE_SIZE
-  HB_ALWAYS_INLINE
-#endif
   void unsafe_to_concat_from_outbuffer (unsigned int start = 0, unsigned int end = -1)
   {
     if (likely ((flags & HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT) == 0))
@@ -502,13 +493,6 @@ struct hb_buffer_t
 
   HB_NODISCARD HB_INTERNAL bool enlarge (unsigned int size);
 
-  HB_NODISCARD bool resize (unsigned length)
-  {
-    assert (!have_output);
-    if (unlikely (!ensure (length))) return false;
-    len = length;
-    return true;
-  }
   HB_NODISCARD bool ensure (unsigned int size)
   { return likely (!size || size < allocated) ? true : enlarge (size); }
 
@@ -569,7 +553,7 @@ struct hb_buffer_t
   bool message (hb_font_t *font, const char *fmt, ...) HB_PRINTF_FUNC(3, 4)
   {
 #ifdef HB_NO_BUFFER_MESSAGE
-    return true;
+   return true;
 #else
     if (likely (!messaging ()))
       return true;

@@ -73,8 +73,6 @@ in_house_tests = [
   'use-syllable.tests',
   'use-vowel-letter-spoofing.tests',
   'use.tests',
-  'use.tests',
-  'variation-selectors.tests',
   'variations.tests',
   'variations-rvrn.tests',
   'vertical.tests',

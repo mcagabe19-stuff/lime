@@ -204,7 +204,6 @@ struct IndexSubtable
   {
     TRACE_SANITIZE (this);
     if (!u.header.sanitize (c)) return_trace (false);
-    hb_barrier ();
     switch (u.header.indexFormat)
     {
     case 1: return_trace (u.format1.sanitize (c, glyph_count));
@@ -379,7 +378,6 @@ struct IndexSubtableRecord
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-		  hb_barrier () &&
 		  firstGlyphIndex <= lastGlyphIndex &&
 		  offsetToSubtable.sanitize (c, base, lastGlyphIndex - firstGlyphIndex + 1));
   }
@@ -399,6 +397,7 @@ struct IndexSubtableRecord
     TRACE_SERIALIZE (this);
 
     auto *subtable = c->serializer->start_embed<IndexSubtable> ();
+    if (unlikely (!subtable)) return_trace (false);
     if (unlikely (!c->serializer->extend_min (subtable))) return_trace (false);
 
     auto *old_subtable = get_subtable (base);
@@ -546,8 +545,7 @@ struct IndexSubtableArray
 		const IndexSubtableRecord*>> *lookup /* OUT */) const
   {
     bool start_glyph_is_set = false;
-    unsigned num_glyphs = c->plan->num_output_glyphs ();
-    for (hb_codepoint_t new_gid = 0; new_gid < num_glyphs; new_gid++)
+    for (hb_codepoint_t new_gid = 0; new_gid < c->plan->num_output_glyphs (); new_gid++)
     {
       hb_codepoint_t old_gid;
       if (unlikely (!c->plan->old_gid_for_new_gid (new_gid, &old_gid))) continue;
@@ -577,6 +575,9 @@ struct IndexSubtableArray
 	  cblc_bitmap_size_subset_context_t *bitmap_size_context) const
   {
     TRACE_SUBSET (this);
+
+    auto *dst = c->serializer->start_embed<IndexSubtableArray> ();
+    if (unlikely (!dst)) return_trace (false);
 
     hb_vector_t<hb_pair_t<hb_codepoint_t, const IndexSubtableRecord*>> lookup;
     build_lookup (c, bitmap_size_context, &lookup);
@@ -637,7 +638,6 @@ struct BitmapSizeTable
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-		  hb_barrier () &&
 		  indexSubtableArrayOffset.sanitize (c, base, numberOfIndexSubtables) &&
 		  horizontal.sanitize (c) &&
 		  vertical.sanitize (c));
@@ -741,9 +741,7 @@ struct CBLC
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-		  hb_barrier () &&
 		  likely (version.major == 2 || version.major == 3) &&
-		  hb_barrier () &&
 		  sizeTables.sanitize (c, this));
   }
 
@@ -980,7 +978,6 @@ struct CBDT
   {
     TRACE_SANITIZE (this);
     return_trace (c->check_struct (this) &&
-		  hb_barrier () &&
 		  likely (version.major == 2 || version.major == 3));
   }
 
@@ -996,10 +993,12 @@ CBLC::subset (hb_subset_context_t *c) const
 {
   TRACE_SUBSET (this);
 
+  auto *cblc_prime = c->serializer->start_embed<CBLC> ();
+
   // Use a vector as a secondary buffer as the tables need to be built in parallel.
   hb_vector_t<char> cbdt_prime;
 
-  auto *cblc_prime = c->serializer->start_embed<CBLC> ();
+  if (unlikely (!cblc_prime)) return_trace (false);
   if (unlikely (!c->serializer->extend_min (cblc_prime))) return_trace (false);
   cblc_prime->version = version;
 

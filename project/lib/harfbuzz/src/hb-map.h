@@ -44,7 +44,7 @@ HB_BEGIN_DECLS
  *
  * Since: 1.7.7
  */
-#define HB_MAP_VALUE_INVALID HB_CODEPOINT_INVALID
+#define HB_MAP_VALUE_INVALID ((hb_codepoint_t) -1)
 
 /**
  * hb_map_t:

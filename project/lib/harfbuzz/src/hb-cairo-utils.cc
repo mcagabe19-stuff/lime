@@ -1,6 +1,5 @@
 /*
  * Copyright © 2022  Red Hat, Inc
- * Copyright © 2021, 2022  Black Foundry
  *
  *  This is part of HarfBuzz, a text shaping library.
  *
@@ -33,13 +32,9 @@
 
 #include <cairo.h>
 
-/* Some routines in this file were ported from BlackRenderer by Black Foundry.
- * Used by permission to relicense to HarfBuzz license.
- *
- * https://github.com/BlackFoundryCom/black-renderer
- */
-
 #define PREALLOCATED_COLOR_STOPS 16
+
+#define _2_M_PIf (2.f * float (M_PI))
 
 typedef struct {
   float r, g, b, a;
@@ -80,7 +75,7 @@ hb_cairo_read_blob (void *closure,
   if (r->offset + length > size)
     return CAIRO_STATUS_READ_ERROR;
 
-  hb_memcpy (data, d + r->offset, length);
+  memcpy (data, d + r->offset, length);
   r->offset += length;
 
   return CAIRO_STATUS_SUCCESS;
@@ -523,7 +518,7 @@ _hb_cairo_add_patch (cairo_pattern_t *pattern, hb_cairo_point_t *center, hb_cair
   cairo_mesh_pattern_end_patch (pattern);
 }
 
-#define MAX_ANGLE (HB_PI / 8.f)
+#define MAX_ANGLE ((float) M_PI / 8.f)
 
 static void
 _hb_cairo_add_sweep_gradient_patches1 (float cx, float cy, float radius,
@@ -606,7 +601,7 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
 					       start_angle, &c,
 					       pattern);
       }
-      if (end_angle < HB_2_PI)
+      if (end_angle < _2_M_PIf)
       {
 	c.r = hb_color_get_red (stops[n_stops - 1].color) / 255.;
 	c.g = hb_color_get_green (stops[n_stops - 1].color) / 255.;
@@ -614,7 +609,7 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
 	c.a = hb_color_get_alpha (stops[n_stops - 1].color) / 255.;
 	_hb_cairo_add_sweep_gradient_patches1 (cx, cy, radius,
 					       end_angle, &c,
-					       HB_2_PI,  &c,
+					       _2_M_PIf,  &c,
 					       pattern);
       }
     }
@@ -678,7 +673,7 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
       color0 = colors[n_stops-1];
       _hb_cairo_add_sweep_gradient_patches1 (cx, cy, radius,
 					     0.,       &color0,
-					     HB_2_PI, &color0,
+					     _2_M_PIf, &color0,
 					     pattern);
       goto done;
     }
@@ -690,7 +685,7 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
 
     for (pos++; pos < n_stops; pos++)
     {
-      if (angles[pos] <= HB_2_PI)
+      if (angles[pos] <= _2_M_PIf)
       {
 	_hb_cairo_add_sweep_gradient_patches1 (cx, cy, radius,
 					       angles[pos - 1], &colors[pos-1],
@@ -699,11 +694,11 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
       }
       else
       {
-	float k = (HB_2_PI - angles[pos - 1]) / (angles[pos] - angles[pos - 1]);
+	float k = (_2_M_PIf - angles[pos - 1]) / (angles[pos] - angles[pos - 1]);
 	_hb_cairo_interpolate_colors (&colors[pos - 1], &colors[pos], k, &color1);
 	_hb_cairo_add_sweep_gradient_patches1 (cx, cy, radius,
 					       angles[pos - 1], &colors[pos - 1],
-					       HB_2_PI,        &color1,
+					       _2_M_PIf,        &color1,
 					       pattern);
 	break;
       }
@@ -715,7 +710,7 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
       color0 = colors[n_stops - 1];
       _hb_cairo_add_sweep_gradient_patches1 (cx, cy, radius,
 					     angles[n_stops - 1], &color0,
-					     HB_2_PI,            &color0,
+					     _2_M_PIf,            &color0,
 					     pattern);
       goto done;
     }
@@ -763,7 +758,7 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
     }
 
     //assert (angles[0] + k * span <= 0 && 0 < angles[n_stops - 1] + k * span);
-    span = fabsf (span);
+    span = fabs (span);
 
     for (signed l = k; l < 1000; l++)
     {
@@ -799,14 +794,14 @@ _hb_cairo_add_sweep_gradient_patches (hb_color_stop_t *stops,
 						 a1, c1,
 						 pattern);
 	}
-	else if (a1 >= HB_2_PI)
+	else if (a1 >= _2_M_PIf)
 	{
 	  hb_cairo_color_t color;
-	  float f = (HB_2_PI - a0)/(a1 - a0);
+	  float f = (_2_M_PIf - a0)/(a1 - a0);
 	  _hb_cairo_interpolate_colors (c0, c1, f, &color);
 	  _hb_cairo_add_sweep_gradient_patches1 (cx, cy, radius,
 						 a0,       c0,
-						 HB_2_PI, &color,
+						 _2_M_PIf, &color,
 						 pattern);
 	  goto done;
 	}

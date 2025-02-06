@@ -33,9 +33,9 @@ jobs:
         shell: msys2 {0}
     steps:
     - name: Checkout
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@v3
     - name: Setup MSYS2
-      uses: msys2/setup-msys2@cf96e00c0aab3788743aaf63b64146f0d383cee9 # v2
+      uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.MSYSTEM }}
         update: true
@@ -54,12 +54,9 @@ jobs:
           mingw-w64-${{ matrix.MSYS2_ARCH }}-pkg-config
           mingw-w64-${{ matrix.MSYS2_ARCH }}-python
           mingw-w64-${{ matrix.MSYS2_ARCH }}-python-pip
-    - name: Remove installed HarfBuzz DLLs
-      run: |
-        rm -f -v /ming*/bin/libharfbuzz-*.dll
     - name: Install Python Dependencies
       run: |
-        pip3 install -r .ci/requirements-fonttools.txt --require-hashes
+        pip install --upgrade fonttools
     - name: Setup Meson
       run: |
         meson setup build \
@@ -74,9 +71,3 @@ jobs:
       run: meson compile -Cbuild
     - name: Test
       run: meson test --print-errorlogs --suite=harfbuzz -Cbuild
-    - name: Upload DLLs
-      if: always()
-      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-      with:
-        name: libharfbuzz-${{ matrix.MSYS2_ARCH }}
-        path: ./build/src/libharfbuzz-*.dll

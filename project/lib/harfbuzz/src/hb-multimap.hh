@@ -38,10 +38,10 @@ struct hb_multimap_t
 {
   void add (hb_codepoint_t k, hb_codepoint_t v)
   {
-    hb_vector_t<hb_codepoint_t> *m;
-    if (multiples.has (k, &m))
+    hb_codepoint_t *i;
+    if (multiples_indices.has (k, &i))
     {
-      m->push (v);
+      multiples_values[*i].push (v);
       return;
     }
 
@@ -51,7 +51,12 @@ struct hb_multimap_t
       hb_codepoint_t old = *old_v;
       singulars.del (k);
 
-      multiples.set (k, hb_vector_t<hb_codepoint_t> {old, v});
+      multiples_indices.set (k, multiples_values.length);
+      auto *vec = multiples_values.push ();
+
+      vec->push (old);
+      vec->push (v);
+
       return;
     }
 
@@ -64,31 +69,22 @@ struct hb_multimap_t
     if (singulars.has (k, &v))
       return hb_array (v, 1);
 
-    hb_vector_t<hb_codepoint_t> *m;
-    if (multiples.has (k, &m))
-      return m->as_array ();
+    hb_codepoint_t *i;
+    if (multiples_indices.has (k, &i))
+      return multiples_values[*i].as_array ();
 
     return hb_array_t<const hb_codepoint_t> ();
   }
 
   bool in_error () const
   {
-    if (singulars.in_error () || multiples.in_error ())
-      return true;
-    for (const auto &m : multiples.values_ref ())
-      if (m.in_error ())
-        return true;
-    return false;
-  }
-
-  void alloc (unsigned size)
-  {
-    singulars.alloc (size);
+    return singulars.in_error () || multiples_indices.in_error () || multiples_values.in_error ();
   }
 
   protected:
   hb_map_t singulars;
-  hb_hashmap_t<hb_codepoint_t, hb_vector_t<hb_codepoint_t>> multiples;
+  hb_map_t multiples_indices;
+  hb_vector_t<hb_vector_t<hb_codepoint_t>> multiples_values;
 };
 
 
