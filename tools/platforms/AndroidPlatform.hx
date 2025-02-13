@@ -499,8 +499,8 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.WRITE_EXTERNAL_STORAGE",
 			"android.permission.REQUEST_INSTALL_PACKAGES"
 		]);
-		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.9");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.1");
+		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.10.2");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.8.0");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 

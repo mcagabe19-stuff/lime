@@ -8,7 +8,7 @@ env:
 
 jobs:
   android:
-    runs-on: ubuntu-24.04
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,7 +16,7 @@ jobs:
         uses: nttld/setup-ndk@main
         id: ndk
         with:
-          ndk-version: r28-beta3
+          ndk-version: r28
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
@@ -37,10 +37,10 @@ jobs:
           haxelib run lime config ANDROID_SETUP true
       - name: Rebuild Lime
         run: |
-          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_ARMV7
-          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_ARM64
-          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_X86
-          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_X86_64
+          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_ARMV7 -D HXCPP_PAGESIZE_4K
+          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_ARM64 -D HXCPP_PAGESIZE_4K
+          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_X86 -D HXCPP_PAGESIZE_4K
+          haxelib run lime rebuild android -release -nocolor -nocffi -eval -ONLY_X86_64 -D HXCPP_PAGESIZE_4K
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
