@@ -18,6 +18,8 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
+ * SPDX-License-Identifier: curl
+ *
  ***************************************************************************/
 /* argv1 = URL
  * argv2 = proxy with embedded user+password
@@ -198,7 +200,9 @@ int test(char *URL)
   test_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 
   /* Ioctl function */
-  test_setopt(curl, CURLOPT_IOCTLFUNCTION, ioctl_callback);
+  CURL_IGNORE_DEPRECATION(
+    test_setopt(curl, CURLOPT_IOCTLFUNCTION, ioctl_callback);
+  )
 
   test_setopt(curl, CURLOPT_PROXY, libtest_arg2);
 

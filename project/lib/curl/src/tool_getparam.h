@@ -20,6 +20,8 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
+ * SPDX-License-Identifier: curl
+ *
  ***************************************************************************/
 #include "tool_setup.h"
 
@@ -52,7 +54,8 @@ typedef enum {
 struct GlobalConfig;
 struct OperationConfig;
 
-ParameterError getparameter(const char *flag, char *nextarg, bool *usedarg,
+ParameterError getparameter(const char *flag, char *nextarg,
+                            bool *usedarg,
                             struct GlobalConfig *global,
                             struct OperationConfig *operation);
 

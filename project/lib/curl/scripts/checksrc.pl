@@ -19,6 +19,8 @@
 # This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
 # KIND, either express or implied.
 #
+# SPDX-License-Identifier: curl
+#
 ###########################################################################
 
 use strict;
@@ -89,6 +91,9 @@ my %warnings = (
     'EMPTYLINEBRACE'   => 'Empty line before the open brace',
     'EQUALSNULL'       => 'if/while comparison with == NULL',
     'NOTEQUALSZERO',   => 'if/while comparison with != 0',
+    'INCLUDEDUP',      => 'same file is included again',
+    'COMMENTNOSPACESTART' => 'no space following /*',
+    'COMMENTNOSPACEEND' => 'no space before */',
     );
 
 sub readskiplist {
@@ -378,6 +383,7 @@ sub scanfile {
 
     my $incomment=0;
     my @copyright=();
+    my %includes;
     checksrc_clear(); # for file based ignores
     accept_violations();
 
@@ -421,6 +427,18 @@ sub scanfile {
                       $line, length($1), $file, $l, "Trailing whitespace");
         }
 
+        # no space after comment start
+        if($l =~ /^(.*)\/\*\w/) {
+            checkwarn("COMMENTNOSPACESTART",
+                      $line, length($1) + 2, $file, $l,
+                      "Missing space after comment start");
+        }
+        # no space at comment end
+        if($l =~ /^(.*)\w\*\//) {
+            checkwarn("COMMENTNOSPACEEND",
+                      $line, length($1) + 1, $file, $l,
+                      "Missing space end comment end");
+        }
         # ------------------------------------------------------------
         # Above this marker, the checks were done on lines *including*
         # comments
@@ -468,6 +486,15 @@ sub scanfile {
         if($l =~ /^(([^"\*]*)[^:"]|)\/\//) {
             checkwarn("CPPCOMMENTS",
                       $line, length($1), $file, $l, "\/\/ comment");
+        }
+
+        if($l =~ /^(\#\s*include\s+)([\">].*[>}"])/) {
+            my ($pre, $path) = ($1, $2);
+            if($includes{$path}) {
+                checkwarn("INCLUDEDUP",
+                          $line, length($1), $file, $l, "duplicated include");
+            }
+            $includes{$path} = $l;
         }
 
         # detect and strip preprocessor directives

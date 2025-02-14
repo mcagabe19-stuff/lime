@@ -18,6 +18,8 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
+ * SPDX-License-Identifier: curl
+ *
  ***************************************************************************/
 /* <DESC>
  * A basic application source code using the multi interface doing two
@@ -36,7 +38,7 @@
 #include <curl/curl.h>
 
 /*
- * Download a HTTP file and upload an FTP file simultaneously.
+ * Download an HTTP file and upload an FTP file simultaneously.
  */
 
 #define HANDLECOUNT 2   /* Number of simultaneous transfers */

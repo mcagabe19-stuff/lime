@@ -18,10 +18,12 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
+ * SPDX-License-Identifier: curl
+ *
  ***************************************************************************/
 
 /* <DESC>
- * POP3 example showing how to retrieve emails from a shared mailbox
+ * Retrieve emails from a shared POP3 mailbox
  * </DESC>
  */
 

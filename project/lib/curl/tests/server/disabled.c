@@ -18,6 +18,8 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
+ * SPDX-License-Identifier: curl
+ *
  ***************************************************************************/
 
 /*
@@ -31,6 +33,7 @@
 
 #include "curl_setup.h"
 #include "multihandle.h" /* for ENABLE_WAKEUP */
+#include "tool_xattr.h" /* for USE_XATTR */
 #include <stdio.h>
 
 static const char *disabled[]={
@@ -70,8 +73,11 @@ static const char *disabled[]={
 #ifndef ENABLE_WAKEUP
   "wakeup",
 #endif
-#ifndef USE_HEADERS_API
+#ifdef CURL_DISABLE_HEADERS_API
   "headers-api",
+#endif
+#ifndef USE_XATTR
+  "xattr",
 #endif
   NULL
 };

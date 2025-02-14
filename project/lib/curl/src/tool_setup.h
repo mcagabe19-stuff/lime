@@ -20,6 +20,8 @@
  * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
  * KIND, either express or implied.
  *
+ * SPDX-License-Identifier: curl
+ *
  ***************************************************************************/
 
 #define CURL_NO_OLDIES
@@ -45,7 +47,7 @@
  * Platform specific stuff.
  */
 
-#if defined(macintosh) && defined(__MRC__)
+#ifdef macintosh
 #  define main(x,y) curl_main(x,y)
 #endif
 

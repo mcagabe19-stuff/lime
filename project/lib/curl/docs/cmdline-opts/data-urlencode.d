@@ -1,3 +1,5 @@
+c: Copyright (C) 1998 - 2022, Daniel Stenberg, <daniel@haxx.se>, et al.
+SPDX-License-Identifier: curl
 Long: data-urlencode
 Arg: <data>
 Help: HTTP POST data URL encoded
@@ -9,6 +11,7 @@ Example: --data-urlencode name=val $URL
 Example: --data-urlencode =encodethis $URL
 Example: --data-urlencode name@file $URL
 Example: --data-urlencode @fileonly $URL
+Multi: append
 ---
 This posts data, similar to the other --data options with the exception
 that this performs URL-encoding.
