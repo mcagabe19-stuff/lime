@@ -59,7 +59,8 @@ namespace lime {
 
 	static bool init = false;
 
-	static Uint64 start_counter = SDL_GetPerformanceCounter();
+	static double performanceFrequency = -1.0;
+	static double performanceCounter = -1.0;
 
 
 	const char* Clipboard::GetText () {
@@ -313,6 +314,10 @@ namespace lime {
 				id_refreshRate = val_id ("refreshRate");
 				id_supportedModes = val_id ("supportedModes");
 				id_width = val_id ("width");
+
+				performanceFrequency = (double)SDL_GetPerformanceFrequency();
+				performanceCounter = (double)SDL_GetPerformanceCounter();
+
 				init = true;
 
 			}
@@ -408,6 +413,13 @@ namespace lime {
 			return display;
 
 		} else {
+
+			if (!init) {
+				performanceFrequency = (double)SDL_GetPerformanceFrequency();
+				performanceCounter = (double)SDL_GetPerformanceCounter();
+
+				init = true;
+			}
 
 			const int id_bounds = hl_hash_utf8 ("bounds");
 			const int id_currentMode = hl_hash_utf8 ("currentMode");
@@ -548,9 +560,14 @@ namespace lime {
 
 
 	double System::GetTimer () {
-		const double frequency = (double)SDL_GetPerformanceFrequency();
-		const double counter = (double)SDL_GetPerformanceCounter() - (double)start_counter;
-		return (counter / frequency) * 1000.0;
+		if(performanceCounter == -1.0) {
+			performanceCounter = (double)SDL_GetPerformanceCounter();
+		}
+		if(performanceFrequency == -1.0) {
+			performanceFrequency = (double)SDL_GetPerformanceFrequency();
+		}
+		const double counter = (double)SDL_GetPerformanceCounter() - performanceCounter;
+		return (counter / performanceFrequency) * 1000.0;
 	}
 
 
