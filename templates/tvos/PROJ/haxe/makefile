@@ -54,7 +54,7 @@ $(HAXE_BUILDS): build-haxe-%:
 		-options Options.txt $(DEBUG)
 	touch $(ESCAPED_CURDIR)/../Classes/Main.mm
 	cd "build/$(CONFIG)$(SUFFIX_$*)"; ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
-		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: BuildHxcppMbedtls.xml \
+		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "../../BuildHxcppMbedtls.xml" \
 		-Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
 		-options "$(ESCAPED_CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt" $(DEBUG)
 
