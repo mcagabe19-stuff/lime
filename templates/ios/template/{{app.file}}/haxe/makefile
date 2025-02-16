@@ -1,3 +1,4 @@
+ESCAPED_CURDIR := $(subst $(space),\$(space),$(CURDIR))
 
 ifeq ("$(ARCHS)","normal")
 	ARCHS = armv6 armv7 i386
@@ -23,8 +24,8 @@ ifeq ("$(HAXE_OS)","iphonesimulator")
 endif
 CONFIG := $(CONFIG)-$(HAXE_OS)
 
-LIB_DEST := $(DEBUG)/libApplicationMain.a
-LIB_MBEDTLS_DEST := $(DEBUG)/libmbedtls_hxcpp.a
+LIB_DEST := "$(DEBUG)/libApplicationMain.a"
+LIB_MBEDTLS_DEST := "$(DEBUG)/libmbedtls_hxcpp.a"
 
 SIMULATOR_ARCH = i386 x86_64
 
@@ -53,15 +54,15 @@ debug_print:
 
 $(HAXE_BUILDS): build-haxe-%:
 	@echo "Haxe $(if $(filter $*,$(SIMULATOR_ARCH)),simulator,device) build: $(CONFIG)$(SUFFIX_$*)"
-	haxe Build.hxml $(HXCPP_FLAGS_$*) -cpp build/$(CONFIG)$(SUFFIX_$*) $(DEBUG)
-	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
-		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination="$(CURDIR)/../lib/$*$(LIB_DEST)" \
+	haxe Build.hxml $(HXCPP_FLAGS_$*) -cpp "build/$(CONFIG)$(SUFFIX_$*)" $(DEBUG)
+	cd "build/$(CONFIG)$(SUFFIX_$*)"; ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
+		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_DEST)" \
 		-options Options.txt $(DEBUG)
-	touch ../Classes/Main.mm
-	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
-		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: $(CURDIR)/BuildHxcppMbedtls.xml \
-		-Ddestination=$(CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST) \
-		-options $(CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt $(DEBUG)
+	touch "$(ESCAPED_CURDIR)/../Classes/Main.mm"
+	cd "build/$(CONFIG)$(SUFFIX_$*)"; ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
+		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "$(ESCAPED_CURDIR)/BuildHxcppMbedtls.xml" \
+		-Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
+		-options "$(ESCAPED_CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt" $(DEBUG)
 
 clean:
 	rm -rf build
