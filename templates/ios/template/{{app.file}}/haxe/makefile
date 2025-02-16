@@ -24,8 +24,8 @@ ifeq ("$(HAXE_OS)","iphonesimulator")
 endif
 CONFIG := $(CONFIG)-$(HAXE_OS)
 
-LIB_DEST := "$(DEBUG)/libApplicationMain.a"
-LIB_MBEDTLS_DEST := "$(DEBUG)/libmbedtls_hxcpp.a"
+LIB_DEST := $(DEBUG)/libApplicationMain.a
+LIB_MBEDTLS_DEST := $(DEBUG)/libmbedtls_hxcpp.a
 
 SIMULATOR_ARCH = i386 x86_64
 
@@ -58,7 +58,7 @@ $(HAXE_BUILDS): build-haxe-%:
 	cd "build/$(CONFIG)$(SUFFIX_$*)"; ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
 		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_DEST)" \
 		-options Options.txt $(DEBUG)
-	touch "$(ESCAPED_CURDIR)/../Classes/Main.mm"
+	touch $(ESCAPED_CURDIR)/../Classes/Main.mm
 	cd "build/$(CONFIG)$(SUFFIX_$*)"; ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
 		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "$(ESCAPED_CURDIR)/BuildHxcppMbedtls.xml" \
 		-Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
