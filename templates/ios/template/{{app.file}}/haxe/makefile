@@ -1,4 +1,4 @@
-ESCAPED_CURDIR := $(shell echo $( pwd ) | sed 's/ /\\ /g')
+ESCAPED_CURDIR := $(shell pwd | sed 's/ /\\ /g')
 
 ifeq ("$(ARCHS)","normal")
 	ARCHS = armv6 armv7 i386
