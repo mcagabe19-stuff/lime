@@ -1,4 +1,4 @@
-ESCAPED_CURDIR := $(subst $(space),\$(space),$(CURDIR))
+ESCAPED_CURDIR := $(patsubst %,\ %, $(CURDIR))
 
 ifeq ("$(ARCHS)","normal")
 	ARCHS = armv6 armv7 i386
