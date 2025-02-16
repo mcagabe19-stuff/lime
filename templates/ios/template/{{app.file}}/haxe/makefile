@@ -62,7 +62,7 @@ $(HAXE_BUILDS): build-haxe-%:
 	cd "build/$(CONFIG)$(SUFFIX_$*)"; ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
 		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "../../BuildHxcppMbedtls.xml" \
 		-Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
-		-options "$(ESCAPED_CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt" $(DEBUG)
+		-options Options.txt $(DEBUG)
 
 clean:
 	rm -rf build
