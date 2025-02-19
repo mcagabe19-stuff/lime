@@ -204,6 +204,10 @@ class WindowsPlatform extends PlatformTarget
 					catch (e:Dynamic) {}
 				}
 			}
+			if (architecture == Architecture.ARMV7 || architecture == Architecture.ARM64)
+			{
+				isArm = true;
+			}
 		}
 
 		var defaultTargetDirectory = switch (targetType)
