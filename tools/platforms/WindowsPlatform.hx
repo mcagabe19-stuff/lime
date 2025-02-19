@@ -503,17 +503,31 @@ class WindowsPlatform extends PlatformTarget
 				haxeArgs.push("winrt");
 				flags.push("-Dwinrt");
 
-				// TODO: ARM support
-
 				if (is64)
 				{
-					haxeArgs.push("-D");
-					haxeArgs.push("HXCPP_M64");
-					flags.push("-DHXCPP_M64");
+					if (isArm)
+					{
+						haxeArgs.push("-D");
+						haxeArgs.push("HXCPP_ARM64");
+						flags.push("-DHXCPP_ARM64");
+					}
+					else
+					{
+						haxeArgs.push("-D");
+						haxeArgs.push("HXCPP_M64");
+						flags.push("-DHXCPP_M64");
+					}
 				}
 				else
 				{
-					flags.push("-DHXCPP_M32");
+					if (isArm)
+					{
+						flags.push("-DHXCPP_ARMV7");
+					}
+					else
+					{
+						flags.push("-DHXCPP_M32");
+					}
 				}
 
 				if (!project.environment.exists("SHOW_CONSOLE"))
