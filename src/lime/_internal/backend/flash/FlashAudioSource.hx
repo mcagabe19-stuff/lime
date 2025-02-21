@@ -9,10 +9,10 @@ class FlashAudioSource
 {
 	private var channel:SoundChannel;
 	private var completed:Bool;
-	private var length:Null<Int>;
+	private var length:Null<Float>;
 	private var loops:Int;
 	private var parent:AudioSource;
-	private var pauseTime:Int;
+	private var pauseTime:Float;
 	private var playing:Bool;
 	private var position:Vector4;
 
@@ -30,14 +30,14 @@ class FlashAudioSource
 	public function play():Void
 	{
 		if (channel != null) channel.stop();
-		channel = parent.buffer.__srcSound.play(pauseTime / 1000 + parent.offset, loops + 1);
+		channel = parent.buffer.__srcSound.play(pauseTime / 1000.0 + parent.offset, loops + 1);
 	}
 
 	public function pause():Void
 	{
 		if (channel != null)
 		{
-			pauseTime = Std.int(channel.position * 1000);
+			pauseTime = channel.position * 1000.0;
 			channel.stop();
 		}
 	}
@@ -53,11 +53,11 @@ class FlashAudioSource
 	}
 
 	// Get & Set Methods
-	public function getCurrentTime():Int
+	public function getCurrentTime():Float
 	{
 		if (channel != null)
 		{
-			return Std.int(channel.position) - parent.offset;
+			return channel.position - parent.offset;
 		}
 		else
 		{
@@ -65,7 +65,7 @@ class FlashAudioSource
 		}
 	}
 
-	public function setCurrentTime(value:Int):Int
+	public function setCurrentTime(value:Float):Float
 	{
 		pauseTime = value;
 
@@ -92,17 +92,17 @@ class FlashAudioSource
 		return value;
 	}
 
-	public function getLength():Int
+	public function getLength():Float
 	{
 		if (length != null)
 		{
 			return length;
 		}
 
-		return Std.int(parent.buffer.__srcSound.length) - parent.offset;
+		return parent.buffer.__srcSound.length - parent.offset;
 	}
 
-	public function setLength(value:Int):Int
+	public function setLength(value:Float):Float
 	{
 		return length = value;
 	}

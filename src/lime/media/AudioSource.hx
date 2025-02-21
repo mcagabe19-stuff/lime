@@ -33,7 +33,7 @@ class AudioSource
 	/**
 		The current playback position of the audio, in milliseconds.
 	**/
-	public var currentTime(get, set):#if flash Int #else Float #end;
+	public var currentTime(get, set):Float;
 
 	/**
 		The gain (volume) of the audio. A value of `1.0` represents the default volume.
