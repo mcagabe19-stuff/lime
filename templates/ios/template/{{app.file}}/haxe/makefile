@@ -63,7 +63,7 @@ $(HAXE_BUILDS): build-haxe-%:
 		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "../../BuildHxcppMbedtls.xml" \
 		-Ddestination="$(ESCAPED_CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
 		-options Options.txt $(DEBUG) \
-		$(HXCPP_FLAGS_$*)
+		$(shell echo "$(HXCPP_FLAGS_$*)" | sed 's/-D /-D/')
 
 clean:
 	rm -rf build
