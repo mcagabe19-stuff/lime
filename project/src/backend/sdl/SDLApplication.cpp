@@ -865,10 +865,10 @@ namespace lime {
 
 		while (SDL_PollEvent (&event)) {
 
-				HandleEvent (&event);
-				event.type = -1;
-				if (!active)
-					return active;
+			HandleEvent (&event);
+			event.type = -1;
+			if (!active)
+				return active;
 		}
 
 		double curTicks = currentUpdate;
@@ -907,7 +907,7 @@ namespace lime {
 				}
 			}
 			while(!done);
- 		}
+		}
 		PushUpdate();
 
 		lastUpdate = currentUpdate;

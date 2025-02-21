@@ -99,6 +99,9 @@ class AudioBuffer
 		#if (js && html5 && lime_howlerjs)
 		__srcHowl.unload();
 		#end
+		#if lime_cffi
+		AL.deleteBuffer(__srcBuffer);
+		#end
 	}
 
 	/**

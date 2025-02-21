@@ -259,9 +259,11 @@ class NativeApplication
 			{
 				case KEY_DOWN:
 					window.onKeyDown.dispatch(keyCode, modifier);
+					window.onKeyDownPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
 
 				case KEY_UP:
 					window.onKeyUp.dispatch(keyCode, modifier);
+					window.onKeyUpPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
 			}
 
 			#if (windows || linux)

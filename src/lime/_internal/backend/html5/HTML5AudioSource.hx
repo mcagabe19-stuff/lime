@@ -114,7 +114,7 @@ class HTML5AudioSource
 	}
 
 	// Get & Set Methods
-	public function getCurrentTime():Int
+	public function getCurrentTime():Float
 	{
 		if (id == -1)
 		{
@@ -128,7 +128,7 @@ class HTML5AudioSource
 		}
 		else if (parent.buffer != null && parent.buffer.__srcHowl != null)
 		{
-			var time = Std.int(parent.buffer.__srcHowl.seek(id) * 1000) - parent.offset;
+			var time = parent.buffer.__srcHowl.seek(id) * 1000.0 - parent.offset;
 			if (time < 0) return 0;
 			return time;
 		}
@@ -137,7 +137,7 @@ class HTML5AudioSource
 		return 0;
 	}
 
-	public function setCurrentTime(value:Int):Int
+	public function setCurrentTime(value:Float):Float
 	{
 		#if lime_howlerjs
 		if (parent.buffer != null && parent.buffer.__srcHowl != null)
@@ -218,10 +218,10 @@ class HTML5AudioSource
 		#if lime_howlerjs
 		parent.buffer.__srcHowl.rate(value);
 		#end
-		
+
 		return getPitch();
 	}
-	
+
 
 	public function getPosition():Vector4
 	{

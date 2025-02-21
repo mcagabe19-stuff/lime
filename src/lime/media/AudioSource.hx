@@ -33,7 +33,7 @@ class AudioSource
 	/**
 		The current playback position of the audio, in milliseconds.
 	**/
-	public var currentTime(get, set):Int;
+	public var currentTime(get, set):#if flash Int #else Float #end;
 
 	/**
 		The gain (volume) of the audio. A value of `1.0` represents the default volume.
@@ -132,12 +132,12 @@ class AudioSource
 	}
 
 	// Get & Set Methods
-	@:noCompletion private function get_currentTime():Int
+	@:noCompletion private function get_currentTime():Float
 	{
 		return __backend.getCurrentTime();
 	}
 
-	@:noCompletion private function set_currentTime(value:Int):Int
+	@:noCompletion private function set_currentTime(value:Float):Float
 	{
 		return __backend.setCurrentTime(value);
 	}
