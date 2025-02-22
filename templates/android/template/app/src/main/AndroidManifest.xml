@@ -44,8 +44,8 @@
 			android:exported="true"
 			android:authorities="::APP_PACKAGE::.fileprovider"
 			android:grantUriPermissions="true"
-				tools:replace="android:authorities">
-			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" />
+			tools:replace="android:authorities android:exported">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" tools:replace="android:resource"/>
 		</provider>
 		::end::
 
