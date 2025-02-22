@@ -40,11 +40,12 @@
 		::if (ANDROID_USE_ANDROIDX)::
 		<provider
 			android:name="androidx.core.content.FileProvider"
+			android:permission="android.permission.MANAGE.DOCUMENTS"
+			android:exported="true"
 			android:authorities="::APP_PACKAGE::.fileprovider"
-			android:exported="false"
 			android:grantUriPermissions="true"
 				tools:replace="android:authorities">
-			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" />
 		</provider>
 		::end::
 
