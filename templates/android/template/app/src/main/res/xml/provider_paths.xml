@@ -1,0 +1,8 @@
+<paths>
+    <!-- This allows access to the app's files directory -->
+    <files-path name="DataStorage" path="/" />
+    <external-files-path name="DataStorage" path="." />
+
+    <!-- This attempts to expose Android/obb (May not work on Android 11+) -->
+    <!-- <root-path name="ObbStorage" path="storage/emulated/0/Android/obb/" /> -->
+</paths>
