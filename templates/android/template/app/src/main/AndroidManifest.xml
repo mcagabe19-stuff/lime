@@ -39,13 +39,12 @@
 
 		::if (ANDROID_USE_ANDROIDX)::
 		<provider
-			android:name="androidx.core.content.FileProvider"
+			android:name="org.haxe.lime.CustomFileProvider"
 			android:permission="android.permission.MANAGE.DOCUMENTS"
 			android:exported="true"
-			android:authorities="::APP_PACKAGE::.fileprovider"
-			android:grantUriPermissions="true"
-			tools:replace="android:authorities android:exported">
-			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" tools:replace="android:resource"/>
+			android:authorities="org.haxe.lime.fileprovider"
+			android:grantUriPermissions="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" />
 		</provider>
 		::end::
 
