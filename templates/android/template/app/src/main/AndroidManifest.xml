@@ -39,12 +39,27 @@
 
 		::if (ANDROID_USE_ANDROIDX)::
 		<provider
-			android:name="org.haxe.lime.CustomFileProvider"
-			android:permission="android.permission.MANAGE.DOCUMENTS"
-			android:exported="true"
-			android:authorities="org.haxe.lime.fileprovider"
-			android:grantUriPermissions="true">
-			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" />
+			android:name="androidx.core.content.FileProvider"
+			android:authorities="::APP_PACKAGE::.fileprovider"
+			android:exported="false"
+			android:grantUriPermissions="true"
+			tools:replace="android:authorities">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+		</provider>
+		::end::
+
+		::if (SHARE_FILES)::
+		<provider
+    		android:name="org.haxe.lime.StorageProvider"
+    		android:authorities="::APP_PACKAGE::.documentsprovider"
+    		android:exported="true"
+    		android:grantUriPermissions="true"
+			::if (ANDROID_USE_ANDROIDX)::
+			android:permission="android.permission.MANAGE_DOCUMENTS">
+			::end::
+    		<intent-filter>
+        		<action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+    		</intent-filter>
 		</provider>
 		::end::
 

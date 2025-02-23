@@ -489,15 +489,12 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.ACCESS_NETWORK_STATE",
 			"android.permission.ACCESS_MEDIA_LOCATION",
 			"android.permission.MANAGE_EXTERNAL_STORAGE",
-			"android.permission.MANAGE_MEDIA",
-			"android.permission.MANAGE_DOCUMENTS",
-			"android.permission.WRITE_MEDIA_STORAGE",
 			"android.permission.READ_MEDIA_IMAGES",
 			"android.permission.READ_MEDIA_VIDEO",
 			"android.permission.READ_MEDIA_AUDIO",
+			"android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
 			"android.permission.READ_EXTERNAL_STORAGE",
-			"android.permission.WRITE_EXTERNAL_STORAGE",
-			"android.permission.REQUEST_INSTALL_PACKAGES"
+			"android.permission.WRITE_EXTERNAL_STORAGE"
 		]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.10.2");
 		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.8.0");
@@ -524,6 +521,8 @@ class AndroidPlatform extends PlatformTarget
 			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
 		});
 		context.ANDROID_ACCEPT_FILE_INTENT = project.config.getArrayString("android.accept-file-intent", []);
+
+		context.SHARE_FILES = project.haxedefs.exists("SHARE_MOBILE_FILES");
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
 		{

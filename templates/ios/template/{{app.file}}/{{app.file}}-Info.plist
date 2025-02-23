@@ -2,8 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	::if (SHARE_FILES)::
 	<key>UIFileSharingEnabled</key>
 	<string>true</string>
+	::end::
 	<key>com.apple.developer.kernel.increased-memory-limit</key>
 	<true/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
